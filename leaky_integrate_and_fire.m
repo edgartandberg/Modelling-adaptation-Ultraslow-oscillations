@@ -11,9 +11,9 @@ tau_m = 5; % time constant in ms
 t_ref = 10; % refractory period in ms, change for adjusting spike frequency
 N = 10000; % number of measurements
 Iext = zeros(1,N); % initialize membrane current
-I_0 = 1.4e-6; % input current
+I_0 = 1.6e-6; % input current
 R = 10^7; % resistance in ohms
-a_gain = 1.3; % adaptation gain, set to 1 for no adaptation
+a_gain = t_ref*2; % adaptation gain, set to *0 for no adaptation
 
 
 u_rest = -70 ;% resting membrane potential in mV
@@ -36,21 +36,29 @@ num_start = 0.2 * (N); % start of input current
 num_end   = 0.8 * (N);  % end of input current
 num_width = round(num_end - num_start);
 
-num_pulses = 8; % number of pulses
+num_pulses = 3; % number of pulses
+length_pulse = round(num_width / num_pulses); % only in use for step input
 
-length_pulse = round(num_width / num_pulses);
+freq = 0.001 * num_pulses; % adjusting frequency for right amount of pulses
+
+time = num_start:1:num_end;
+signal =  I_0*sin(time*freq);
 
 
+Iext(num_start : num_start + num_width) = signal; % modelling input current as sine function for oscillations
+% change to = I_0 for step input
 
-Iext(num_start : num_start + num_width) = I_0;
+%%
+
 Iext = Iext + noise;
 Iext(1:num_start) = 0; % resetting signal before and after current to 0
 
-% add or remove 50 - 53 for oscillatory input
-Iext(num_start + length_pulse : num_start + 2 * length_pulse) = 0;
-Iext(num_start + 3 * length_pulse : num_start + 4 * length_pulse) = 0;
-Iext(num_start + 5 * length_pulse : num_start + 6 * length_pulse) = 0;
-Iext(num_start + 7 * length_pulse : num_start + 8 * length_pulse) = 0;
+% add or remove 50 - 53 for without/with oscillatory input
+
+% Iext(num_start + length_pulse : num_start + 2 * length_pulse) = 0;
+% Iext(num_start + 3 * length_pulse : num_start + 4 * length_pulse) = 0;
+% Iext(num_start + 5 * length_pulse : num_start + 6 * length_pulse) = 0;
+% Iext(num_start + 7 * length_pulse : num_start + 8 * length_pulse) = 0;
 Iext(num_end:end) = 0;
 
 
@@ -75,7 +83,7 @@ for ii = 1 : num_end - 2 - a % Adjust loop range to avoid out-of-bounds errors
         u(ii) = u_spike;
         u(ii + 1) = u_hp;
         u(ii + 2 : ii + 2 + a) = u_rest;
-        a = round(a * a_gain); % Increment by adaptation gain
+        a = round(a + a_gain); % Increment by adaptation gain
     end
 end
 
