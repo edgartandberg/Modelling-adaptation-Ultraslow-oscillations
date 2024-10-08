@@ -27,6 +27,11 @@ num_start = 0.2 * (N); % start of input current
 num_end   = 0.8 * (N);  % end of input current
 num_pulses = 5; % number of pulses
 
+%% Building connectivity matrix
+
+figure(1)
+plotConnectivityMatrix(spiketrains);
+
 %% Generate input current + Function for leaky integrate and fire + adaptation, LIF.m
 
 % Initialize output variables
@@ -50,7 +55,7 @@ for i = 1:spiketrains
 end
 
 %% Plotting input current and voltage
-figure(1) 
+figure(2) 
 subplot(2,1,1);
 plot(t,Iext,'r','LineWidth',3)
 title('Input current')
@@ -73,7 +78,7 @@ hold off
 
 %% Raster plot
 
-figure(2)
+figure(3)
 xlim([-0.1*N num_end*1.05]);
 ylim([0 spiketrains])
 
