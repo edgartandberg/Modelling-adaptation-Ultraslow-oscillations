@@ -1,6 +1,10 @@
 function rasterPlot(spikeCountsCell, timeStepS)
 
 
+% color = lines(length(spikeCountsCell)); % Generates distinct colors. 
+color = 'k' ; % switch to this line for single color
+
+
 % Loop through each cell in the cell array
 for cellIndex = 1:length(spikeCountsCell)
     spikes = spikeCountsCell{cellIndex}; % Get the spike train matrix from the current cell
@@ -12,8 +16,9 @@ for cellIndex = 1:length(spikeCountsCell)
         spikeTimes = find(spikes(train, :) == 1);
         yOffset = ticMargin + (train - 1) * (ticMargin + ticHeight) + (cellIndex - 1) * (1 + ticMargin);
         for i = 1:length(spikeTimes)
-            line([spikeTimes(i) * timeStepS, spikeTimes(i) * timeStepS], [yOffset, yOffset + ticHeight]);
-        end
+            line([spikeTimes(i) * timeStepS, spikeTimes(i) * timeStepS], ...
+                 [yOffset, yOffset + ticHeight], 'Color', color); % remove '(cellIndex, :)' for single color
+        end                                                       % add '(cellIndex, :)' for varying colors    
     end
 end
 

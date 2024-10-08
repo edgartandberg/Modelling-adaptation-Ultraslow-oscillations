@@ -1,5 +1,4 @@
-
-tic
+%tic
 
 clearvars
 close all
@@ -77,8 +76,8 @@ hold off
 figure(2)
 xlim([-0.1*N num_end*1.05]);
 ylim([0 spiketrains])
+
 timeStepS = 1;
 rasterPlot(spikecount_all, timeStepS);
 
-
-toc
+%toc
