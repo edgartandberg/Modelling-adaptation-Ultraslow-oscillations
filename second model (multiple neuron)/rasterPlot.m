@@ -1,22 +1,26 @@
-function rasterPlot(spikes, timeStepS)
+function rasterPlot(spikeCountsCell, timeStepS)
 
 
+% Loop through each cell in the cell array
+for cellIndex = 1:length(spikeCountsCell)
+    spikes = spikeCountsCell{cellIndex}; % Get the spike train matrix from the current cell
+    trains = size(spikes, 1); 
+    ticMargin = 0.01;                                      % gap between spike trains (full scale is 1)
+    ticHeight = (1.0 - (trains + 1) * ticMargin) / trains;
 
-times = [0:timeStepS:timeStepS * (length(spikes) - 1)];
-axes('position', [0.1, 0.1, 0.8, 0.8]);
-axis([0, length(spikes) - 1, 0, 1]);
-trains = size(spikes, 1); 
-ticMargin = 0.01;                                      % gap between spike trains (full scale is 1)
-ticHeight = (1.0 - (trains + 1) * ticMargin) / trains;
-
-for train = 1:trains
-    spikeTimes = find(spikes(train, :) == 1);
-    yOffset = ticMargin + (train - 1) * (ticMargin + ticHeight);
-    for i = 1:length(spikeTimes)
-        line([spikeTimes(i), spikeTimes(i)], [yOffset, yOffset + ticHeight]);
+    for train = 1:trains
+        spikeTimes = find(spikes(train, :) == 1);
+        yOffset = ticMargin + (train - 1) * (ticMargin + ticHeight) + (cellIndex - 1) * (1 + ticMargin);
+        for i = 1:length(spikeTimes)
+            line([spikeTimes(i) * timeStepS, spikeTimes(i) * timeStepS], [yOffset, yOffset + ticHeight]);
+        end
     end
 end
 
-xlabel('Time (s)')
-title('Raster plot of spikes');
+% Set axis labels and title
+xlabel('Time (s)');
+ylabel('Neuron');
+title('Raster plot');
+hold off;
+
 end

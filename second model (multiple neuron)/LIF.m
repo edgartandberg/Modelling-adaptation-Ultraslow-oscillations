@@ -1,4 +1,4 @@
-function [u,a,spikecount] = LIF(u_rest, RI, t, tau_m, t_ref, num_end, u_th, u_spike, u_hp, a_gain)
+function [u,a,spikecount] = LIF(u_rest, RI, t, tau_m, t_ref, num_end, u_th, u_spike, u_hp, a_gain, num_start)
 
 % LiF model as ODE
 % ------------------------
@@ -25,7 +25,7 @@ for ii = 1 : num_end - 2 - a % Adjust loop range to avoid out-of-bounds errors
 
     if u(ii + 1) > u_th
         u(ii) = u_spike;
-        spikecount(ii) = 1;
+        spikecount(ii-num_start) = 1;
         u(ii + 1) = u_hp;
         u(ii + 2 : ii + 2 + a) = u_rest;
         a = round(a + a_gain); % Increment by adaptation gain
