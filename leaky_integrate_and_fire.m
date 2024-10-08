@@ -1,19 +1,19 @@
 
-%tic
+tic
 
-clear all
+clearvars
 close all
 clc
 
 % Play with the input current, add noise
 
 tau_m = 5; % time constant in ms
-t_ref = 10; % refractory period in ms, change for adjusting spike frequency
+t_ref = 7; % refractory period in ms, change for adjusting spike frequency
 N = 10000; % number of measurements
 Iext = zeros(1,N); % initialize membrane current
 I_0 = 1.6e-6; % input current
 R = 10^7; % resistance in ohms
-a_gain = t_ref*2; % adaptation gain, set to *0 for no adaptation
+a_gain = t_ref*3; % adaptation gain, set to *0 for no adaptation
 
 
 u_rest = -70 ;% resting membrane potential in mV
@@ -36,7 +36,7 @@ num_start = 0.2 * (N); % start of input current
 num_end   = 0.8 * (N);  % end of input current
 num_width = round(num_end - num_start);
 
-num_pulses = 3; % number of pulses
+num_pulses = 5; % number of pulses
 length_pulse = round(num_width / num_pulses); % only in use for step input
 
 freq = 0.001 * num_pulses; % adjusting frequency for right amount of pulses
@@ -79,6 +79,10 @@ u = u_rest + RI.*(1-exp(-(t/tau_m))); %solution for above equation for u at u(0)
 
 a = t_ref;
 for ii = 1 : num_end - 2 - a % Adjust loop range to avoid out-of-bounds errors
+    if u(ii:ii+1000) < u_th % if below threshold for 1000 ms, resets adaptation
+        a = t_ref;
+    end
+
     if u(ii + 1) > u_th
         u(ii) = u_spike;
         u(ii + 1) = u_hp;
@@ -112,5 +116,10 @@ ylabel('u(t)')
 xlim([-0.1*N num_end*1.05])
 ylim([u_hp-10 u_spike+5])
 yline(u_th,'--k','Threshold')
+%% Raster plot
 
-%toc
+
+
+
+
+toc
