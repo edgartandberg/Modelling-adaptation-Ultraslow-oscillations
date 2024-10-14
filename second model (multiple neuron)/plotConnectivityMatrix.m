@@ -1,4 +1,4 @@
-function plotConnectivityMatrix(spiketrains)
+function [connectivitymatrix] = plotConnectivityMatrix(spiketrains)
 
     A = zeros(spiketrains);
     for i = 1:spiketrains
@@ -13,6 +13,6 @@ function plotConnectivityMatrix(spiketrains)
 
     heatmap(connectivitymatrix, 'ColorMap', parula, 'GridVisible', 'off');
     title('Connectivity Matrix');
-    xlabel('Neurons');
-    ylabel('Neurons');
+    xlabel('Neuron');
+    ylabel('Neuron');
 end
