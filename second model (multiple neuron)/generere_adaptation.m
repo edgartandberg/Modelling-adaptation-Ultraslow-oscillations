@@ -1,4 +1,4 @@
-%tic
+% tic
 
 clearvars
 close all
@@ -12,7 +12,7 @@ N = 10000; % number of measurements
 Iext = zeros(1,N); % initialize membrane current
 I_0 = 1.6e-6; % input current
 R = 10^7; % resistance in ohms
-a_gain = t_ref*3; % adaptation gain, set to *0 for no adaptation
+a_gain = t_ref*5; % adaptation gain, set to *0 for no adaptation
 
 
 u_rest = -70 ;% resting membrane potential in mV
@@ -22,7 +22,7 @@ u_spike = 20 ;% membrane potential at spike peak
 
 t = linspace(-0.2*N, 0.8*N, N); % time series
 
-spiketrains = 10; % number of spiketrains we want to simulate. Change to 1 for single neuron
+spiketrains = 12; % number of spiketrains we want to simulate. Change to 1 for single neuron
 num_start = 0.2 * (N); % start of input current
 num_end   = 0.8 * (N);  % end of input current
 num_pulses = 3; % number of pulses
@@ -55,13 +55,13 @@ spikecount_all = cell(spiketrains, 1);
 % end
 
 %% Switch to this part if you want network + input current with delay on each spike train
-% at 0 right now for no delay
+% at 0 for no delay
 
-delay_increment = 5; % Adjust this value as needed
+delay_increment = 50; % Adjust this value as needed
 
 for i = 1:spiketrains
     % Calculate the new start time with delay
-    current_start = num_start + (i - 1) * delay_increment;
+    current_start = num_start+(i-1)*delay_increment;
 
     % current for 1st spike train
     [RI, Iext] = Gen_Current(R, Iext, current_start, num_end, num_pulses, I_0);
@@ -70,11 +70,13 @@ for i = 1:spiketrains
     Iext_all{i} = Iext;
 
     if i > 1
-        if connectivitymatrix(i,i-1) > 0.5
+        if connectivitymatrix(i,i-1) > 0.90
 
             previous_chain = u_all{i-1,1};
+            
             weight = connectivitymatrix(i,i-1); 
-            [u,a,spikecount] = Synaptic_input(previous_chain,u,t_ref,u_rest,num_end,u_th,u_spike,num_start,u_hp,a_gain,weight);
+
+            [u,a,spikecount] = Synaptic_input(previous_chain,u,t_ref,u_rest,num_end,u_th,u_spike,current_start,u_hp,a_gain,weight);
         else
             u = 0;
 
@@ -95,7 +97,7 @@ end
 
 figure(2) 
 subplot(2,1,1);
-plot(t,Iext,'r','LineWidth',3)
+plot(t,Iext_all{2,1},'r','LineWidth',3)
 title('Input current')
 xlabel('time')
 ylabel('I_ext')
@@ -104,7 +106,7 @@ ylim([0 I_0*1.25])
 yline(0)
 
 subplot(2,1,2);
-plot(t,u, 'b', 'LineWidth',2)
+plot(t,u_all{2,1}, 'b', 'LineWidth',2)
 title('Voltage')
 xlabel('time')
 ylabel('u(t)')
@@ -123,4 +125,4 @@ ylim([0 spiketrains])
 timeStepS = 1;
 rasterPlot(spikecount_all, timeStepS);
 
-%toc
+% toc
