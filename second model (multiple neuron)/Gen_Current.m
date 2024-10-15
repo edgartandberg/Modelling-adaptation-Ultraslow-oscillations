@@ -19,7 +19,7 @@ signal =  I_0*sin(time*freq);
 
 
 Iext(num_start : num_start + num_width) = signal; % modelling input current as sine function for oscillations
-% change to = I_0 for step input
+% change to Iext = I_0 for step input
 
 Iext = Iext + noise;
 Iext(1:num_start) = 0; % resetting signal before and after current to 0

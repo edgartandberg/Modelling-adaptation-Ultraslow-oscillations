@@ -4,11 +4,10 @@ clearvars
 close all
 clc
 
-% Play with the input current, add noise
 
 tau_m = 5; % time constant in ms
-t_ref = 7; % refractory period in ms, change for adjusting spike frequency
-N = 10000; % number of measurements
+t_ref = 10; % refractory period in ms, change for adjusting spike frequency
+N = 12000; % number of measurements
 Iext = zeros(1,N); % initialize membrane current
 I_0 = 1.6e-6; % input current
 R = 10^7; % resistance in ohms
@@ -22,7 +21,7 @@ u_spike = 20 ;% membrane potential at spike peak
 
 t = linspace(-0.2*N, 0.8*N, N); % time series
 
-spiketrains = 10; % number of spiketrains we want to simulate. Change to 1 for single neuron
+spiketrains = 18; % number of spiketrains we want to simulate. Change to 1 for single neuron
 num_start = 0.2 * (N); % start of input current
 num_end   = 0.8 * (N);  % end of input current
 num_pulses = 3; % number of pulses
@@ -60,8 +59,9 @@ spikecount_all = cell(spiketrains, 1);
 delay_increment = 50; % Adjust this value as needed
 
 for i = 1:spiketrains
+    
     % Calculate the new start time with delay
-    current_start = num_start + (i-1)*delay_increment;
+    current_start = num_start + (i-1)*delay_increment; 
 
     % current for 1st spike train
     [RI, Iext] = Gen_Current(R, Iext, num_start, num_end, num_pulses, I_0);
@@ -82,7 +82,8 @@ for i = 1:spiketrains
 
         end
     else
-        % membrane potential for 1st spiketrain
+    
+    % membrane potential for 1st spiketrain
     [u, a, spikecount] = LIF(u_rest, RI, t, tau_m, t_ref, num_end, u_th, u_spike, u_hp, a_gain, num_start, connectivitymatrix);
     
 

@@ -20,7 +20,7 @@ for ii = 1 : num_end - 2 - a % Adjust loop range to avoid out-of-bounds errors
         a = t_ref;
     end
 
-    if u(ii + 1) > u_th
+    if u(ii) > u_th
         u(ii) = u_spike;
         spikecount(ii-2*num_start+current_start) = 1;
         u(ii + 1) = u_hp;

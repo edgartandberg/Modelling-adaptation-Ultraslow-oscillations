@@ -10,6 +10,7 @@ function [u,a,spikecount] = LIF(u_rest, RI, t, tau_m, t_ref, num_end, u_th, u_sp
 % empty array wehenever a spike occurs
 % ------------------------
 
+%du/dt = (-u + u_rest + R*Iext)/tau_m
 u = u_rest + RI.*(1-exp(-(t/tau_m))); %solution for above equation for u at u(0) = u_rest
 
 
@@ -22,7 +23,7 @@ for ii = 1 : num_end - 2 - a % Adjust loop range to avoid out-of-bounds errors
         a = t_ref;
     end
 
-    if u(ii + 1) > u_th
+    if u(ii) > u_th
         u(ii) = u_spike;
         spikecount(ii-num_start) = 1;
         u(ii + 1) = u_hp;

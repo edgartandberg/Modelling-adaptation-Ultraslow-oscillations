@@ -1,11 +1,14 @@
 function rasterPlot(spikeCountsCell, timeStepS)
 
 
-% color = lines(length(spikeCountsCell)); % Generates distinct colors. 
+% color = lines(length(spikeCountsCell)); % switxh to this line for distinct colors. 
 color = 'k' ; % switch to this line for single color
 
 
 % Loop through each cell in the cell array
+% from the 'Poisson tutorial' :
+% https://www.hms.harvard.edu/bss/neuro/bornlab/nb204/statistics/poissonTutorial.txt
+
 for cellIndex = 1:length(spikeCountsCell)
     spikes = spikeCountsCell{cellIndex}; % Get the spike train matrix from the current cell
     trains = size(spikes, 1); 
