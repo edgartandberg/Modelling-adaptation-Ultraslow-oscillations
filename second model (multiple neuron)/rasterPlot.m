@@ -23,7 +23,7 @@ for cellIndex = 1:length(spikeCountsCell)
 end
 
 % Set axis labels and title
-xlabel('Time (s)');
+xlabel('Time (ms)');
 ylabel('Neuron');
 title('Raster plot');
 hold off;

@@ -22,7 +22,7 @@ u_spike = 20 ;% membrane potential at spike peak
 
 t = linspace(-0.2*N, 0.8*N, N); % time series
 
-spiketrains = 12; % number of spiketrains we want to simulate. Change to 1 for single neuron
+spiketrains = 10; % number of spiketrains we want to simulate. Change to 1 for single neuron
 num_start = 0.2 * (N); % start of input current
 num_end   = 0.8 * (N);  % end of input current
 num_pulses = 3; % number of pulses
@@ -61,10 +61,10 @@ delay_increment = 50; % Adjust this value as needed
 
 for i = 1:spiketrains
     % Calculate the new start time with delay
-    current_start = num_start+(i-1)*delay_increment;
+    current_start = num_start + (i-1)*delay_increment;
 
     % current for 1st spike train
-    [RI, Iext] = Gen_Current(R, Iext, current_start, num_end, num_pulses, I_0);
+    [RI, Iext] = Gen_Current(R, Iext, num_start, num_end, num_pulses, I_0);
 
     RI_all{i} = RI;
     Iext_all{i} = Iext;
@@ -76,14 +76,14 @@ for i = 1:spiketrains
             
             weight = connectivitymatrix(i,i-1); 
 
-            [u,a,spikecount] = Synaptic_input(previous_chain,u,t_ref,u_rest,num_end,u_th,u_spike,current_start,u_hp,a_gain,weight);
+            [u,a,spikecount] = Synaptic_input(previous_chain,u,t_ref,u_rest,num_end,u_th,u_spike,current_start,u_hp,a_gain,weight,num_start);
         else
             u = 0;
 
         end
     else
         % membrane potential for 1st spiketrain
-    [u, a, spikecount] = LIF(u_rest, RI, t, tau_m, t_ref, num_end, u_th, u_spike, u_hp, a_gain, current_start, connectivitymatrix);
+    [u, a, spikecount] = LIF(u_rest, RI, t, tau_m, t_ref, num_end, u_th, u_spike, u_hp, a_gain, num_start, connectivitymatrix);
     
 
     end
