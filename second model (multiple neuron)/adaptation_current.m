@@ -6,9 +6,9 @@ clc
 clearvars
 
 % Parameters
-t_k = 30; % time constant for adaptation current, indexing over k neurons
+t_k = 100; % time constant for adaptation current, indexing over k neurons
 a_k = 0; % adaptation coupling
-b_k = 60; % adaptation gain
+b_k = 5; % adaptation gain
 u_rest = -70; % resting potential
 t_f = 500; % time point for spike
 u_r = -55; % voltage reset
