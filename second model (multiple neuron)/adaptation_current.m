@@ -25,7 +25,7 @@ u = @(t) 10 * sin(0.01 * t) + 1; % example: sine wave oscillating around 1
 
 % Define and solve the differential equation:  
 % t_k * dw_k / dt = a_k(u_t - u_rest) - w_k + b_k * delta(t - t_f)
-odefun = @(t, w) (1/t_k) * ((a_k * (u(t) - u_rest) - w) + (t == t_f) * b_k);
+odefun = @(t, w) (1/t_k) * ((a_k * (u(t) - u_rest) - w) + (t >= t_f) * b_k);
 [t, w_k] = ode45(odefun, tspan, w0);
 
 % Plot the results
