@@ -22,7 +22,7 @@ error = 0;
     end
     connectivitymatrix = A; 
 
-    heatmap(connectivitymatrix, 'ColorMap', parula, 'GridVisible', 'off');
+    heatmap(connectivitymatrix, 'ColorMap', parula, 'GridVisible', 'off','CellLabelColor','none');
     title('Connectivity Matrix');
     xlabel('Neuron');
     ylabel('Neuron');

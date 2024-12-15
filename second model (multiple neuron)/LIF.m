@@ -1,4 +1,4 @@
-function [u,a,spikecount] = LIF(u_rest, RI, t, tau_m, t_ref, num_end, u_th, u_spike, u_hp, a_gain, num_start, connectivitymatrix)
+function [u,a,spikecount] = LIF(u_rest, R, Iext, t_m, t_ref, num_end, u_th, u_spike, u_hp)
 
 % LiF model as ODE
 % ------------------------
@@ -10,29 +10,30 @@ function [u,a,spikecount] = LIF(u_rest, RI, t, tau_m, t_ref, num_end, u_th, u_sp
 % empty array wehenever a spike occurs
 % ------------------------
 
-%du/dt = (-u + u_rest + R*Iext)/tau_m
-u = u_rest + RI.*(1-exp(-(t/tau_m))); %solution for above equation for u at u(0) = u_rest
 
+dt=0.25; %in seconds
+spk_times=[];
+counter=0;
+u(2)=u_rest; % intitial conditions u
+
+%du/dt = (-u + u_rest + R*Iext)/tau_m
+
+t=2;
+
+while t<=800
+    u(t)= u(t-1) + dt*(-(u(t-1) - u_rest) + R.*Iext(t-1))/t_m;
+    if (u(t)>u_th)
+        u(t) = u_spike;
+        u(t+1) = u_hp;
+        u(t+2) = u_rest;
+        t = t+2;
+        counter=counter+1;
+        spk_times(counter)=t;
+    end
+    t = t+1;
+end
 
 
 a = t_ref;
 spikecount = zeros(1, num_end - 2 - a);
-
-for ii = 1 : num_end - 2 - a % Adjust loop range to avoid out-of-bounds errors
-    if u(ii:ii+1000) < u_th % if below threshold for 1000 ms, resets adaptation
-        a = t_ref;
-    end
-
-    if u(ii) > u_th
-        u(ii) = u_spike;
-        spikecount(ii-num_start) = 1;
-        u(ii + 1) = u_hp;
-        u(ii + 2 : ii + 2 + a) = u_rest;
-        a = round(a + a_gain); % Increment by adaptation gain
-    end
-end
-
-
-end
-
 

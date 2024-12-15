@@ -4,12 +4,10 @@ clearvars
 
 % Parameters
 t_m = 20;        % Time constant for membrane potential
-a_k = 0.5; % adaptation coupling
-t_k = 100; % time constant for adaptation current, indexing over k neurons
-b_k = 10000; % adaptation gain
+theta_0 = 60; % amount threshold jumps by
+t_th = 100; % threshold adaptation time constant, how sharp the decay is
 u_r = -55; % voltage reset
 u_rest = -70; % resting potential
-t_f = 500; % time point for spike
 dt=0.01; %in seconds
 spk_times=[];
 counter=0;
@@ -19,8 +17,6 @@ I(1,1:25000)=0;
 I(1,25000:75000)=200;
 I(1,75000:100000)=0;
 
-theta_0 = 60; % amount threshold jumps by
-t_th = 100; % threshold adaptation time constant, how sharp the decay is
 
 uth0=50;
 % Calculate v_th(t)
@@ -44,7 +40,7 @@ for t=2:100000
     end
 end
 % figure
-figure(1);
+figure();
 subplot(3,1,1)
 hold on;
 plot(u, 'b-', 'DisplayName', 'u(t)');
