@@ -9,7 +9,7 @@ t_m = 5; % time constant in ms
 t_ref = 50; % refractory period in ms, change for adjusting spike frequency
 N = 800; % number of measurements
 Iext = zeros(1,N); % initialize membrane current
-I_0 = 2.5e-6; % input current
+I_0 = 1.5e-6; % input current
 R = 10^7; % resistance in ohms
 a_gain = 0*t_ref*5; % set to *0 for no adaptation and *1 for adaptation
 

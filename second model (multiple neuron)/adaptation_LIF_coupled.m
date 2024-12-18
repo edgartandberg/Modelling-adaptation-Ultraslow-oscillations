@@ -9,12 +9,12 @@ clearvars
 t_m = 20;        % Time constant for membrane potential
 t_k = 100; % time constant for adaptation current, indexing over k neurons
 a_k = 0.5; % adaptation coupling
-b_k = 1.0; % adaptation gain
+b_k = 5.0; % adaptation gain
 u_r = -55; % voltage reset
 u_rest = -70; % resting potential
 u_th= -50; % spike threshold
 
-dt=0.0005; %in seconds
+dt=0.01; %in seconds
 spk_times=[];
 counter=0;
 u(1)=0; % intitial conditions u
@@ -39,7 +39,7 @@ end
 
 
 % Generate noise to every nth step
-noise = randn(1, size(I, 2));
+noise = 0*randn(1, size(I, 2));
 n = 1; % interval between every noisy input 
 
 for idx = 1:n:length(I)
@@ -91,7 +91,7 @@ subplot(2,2,3)
 plot(diff(spk_times), 'b-*')
 xlabel('spike no');
 title('interspike interval')
-ylim([4250 4500])
+ylim([210 220])
 xlim([0 10])
 subplot(2,2,4)
 plot(w, 'r-', 'DisplayName', 'w(t)');

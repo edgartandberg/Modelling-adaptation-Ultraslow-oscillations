@@ -6,7 +6,7 @@ clear all
 % Parameters
 t_m = 20;        % Time constant for membrane potential
 t_k = 100; % time constant for adaptation current, indexing over k neurons
-a_k = 0.0; % adaptation coupling
+a_k = 0.5; % adaptation coupling
 u_r = -55; % voltage reset
 u_rest = -70; % resting potential
 u_th= -50; % spike threshold
@@ -96,10 +96,11 @@ title('Input Current');
 ylim([-10 max_amp*1.2]);
 
 nexttile(2)
-plot(diff(spk_times), 'b-*')
-xlim([2 158]);
-ylim([0 250]);
+plot(diff(spk_times), 'k-')
+xlim([3 120]);
+ylim([200 420]);
 xlabel('spike no');
+ylabel('Time [ms]')
 title('interspike interval')
 
 nexttile([1 2]);

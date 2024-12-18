@@ -18,10 +18,10 @@ time = num_start:1:num_end;
 signal =  I_0*sin(time*freq);
 
 
-Iext(num_start : num_start + num_width) = signal; % modelling input current as sine function for oscillations
+Iext(num_start : num_start + num_width) = I_0; % modelling input current as sine function for oscillations
 % change to Iext = I_0 for step input, Iext = signal for osc input
 
-Iext = Iext + noise;
+%Iext = Iext + noise;
 Iext(1:num_start) = 0; % resetting signal before and after current to 0
 Iext(num_end:end) = 0;
 
