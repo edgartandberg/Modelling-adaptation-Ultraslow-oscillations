@@ -21,3 +21,8 @@ The next goal is to simulate internally generated oscillatory sequences, but als
 Now submitted preliminary thesis. The goal of simulating networks is pushed to the spring, 
 focus last two months have been fine tuning models for single neurons. Final version used to generate figures is latest version here.
 Looking forward to the spring!
+
+15.01.2025
+
+Now started my masters thesis! Good to be back. Started off looking into HH type single-neuron models,
+without adaptation for now.
