@@ -16,7 +16,7 @@ v_l = -65; % Leak reversal potential
 dt05=dt/2;
 m_steps=round(t_final/dt);
 
-v_i(1)=0; % potential for inhibitory neuron, initial condition
+v_i(1)=-70; % potential for inhibitory neuron, initial condition
 
 
 % gating variables, dimensionless

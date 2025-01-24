@@ -1,4 +1,4 @@
-function [v_e, t_e, e_counter] = excitatory_HH(t_final,dt,i_ext_e)
+function [v_e, t_e, e_counter, m, h, n] = excitatory_HH(t_final,dt,i_ext_e)
 %UNTITLED4 Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -6,10 +6,10 @@ dt05=dt/2;
 
 
 c = 1; % Capacitance
-g_k = 40; % Conductance for potassium
+g_k = 10; % Conductance for potassium
 g_na = 120; % Conductance for sodium
-g_l = 0.3; % Leak conductance
-v_k = -77; % Potassium reversal potential
+g_l = 0.1; % Leak conductance
+v_k = -70; % Potassium reversal potential
 v_na = 55; % Sodium reversal potential
 v_l = -65; % Leak reversal potential
 
@@ -18,12 +18,14 @@ v_l = -65; % Leak reversal potential
 
 m_steps=round(t_final/dt);
 
-v_e(1)=0; % potential for excitatory neuron, initial condition
+
+v_e(1)=-70; % potential for excitatory neuron, initial condition
 
 % gating variables, dimensionless
 m(1)=alpha_m(v_e(1))/(alpha_m(v_e(1))+beta_m(v_e(1)));
 h(1)=0.5; 
-n(1)=0.5; 
+n(1)=0.5;
+
 
 e_counter=0;
 
