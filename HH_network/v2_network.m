@@ -82,6 +82,7 @@ g_i = zeros(1, m_steps);
 I_syn_e = zeros(1, m_steps);
 I_syn_i = zeros(1, m_steps);
 
+A = 10*ones(1, m_steps); %Normalization constant
 
 
 
@@ -92,7 +93,8 @@ I_syn_i = zeros(1, m_steps);
 
 for k=2:m_steps
     for  j = 1:size_network
-
+    i_ext_e = max_amps;
+    i_ext_i = max_amps;
 
     [v_e, t_e, e_counter, m_e, h_e, n_e, spk_times_e] = excitatory_HH_pass2(v_e, k, t_final,dt,i_ext_e, m_e, h_e, n_e);
     [v_i, t_i, i_counter, m_i, h_i, n_i, spk_times_i] = inhibitory_HH_pass2(v_i, k, t_final,dt,i_ext_i, m_i, h_i, n_i);
@@ -106,7 +108,7 @@ for k=2:m_steps
 
     % generate synaptic currents
 
-    [I_syn_e, I_syn_i, g_e_new, g_i_new] = synaptic_current(g_e_old, g_i_old, k, spk_times_e, spk_times_i); % generating synaptic current
+    [I_syn_e, I_syn_i, g_e_new, g_i_new] = synaptic_current(g_e_old, g_i_old, k, spk_times_e, spk_times_i, A); % generating synaptic current
     
     g_e(k) = g_e_new;
     g_i(k) = g_i_new;
@@ -149,7 +151,7 @@ for k=2:m_steps
 
 
     % inhibitory neurons
-    i_ext_i = i_ext_i + size_network*I_syn_ei + size_network*I_syn_i;
+    i_ext_i = i_ext_i + 3*I_syn_ei + size_network*I_syn_i; 
     [v_i, t_i, i_counter, m_i, h_i, n_i, spk_times_i] = inhibitory_HH_pass2(v_i, k, t_final,dt,i_ext_i, m_i, h_i, n_i);
 
 

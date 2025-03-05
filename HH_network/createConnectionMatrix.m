@@ -20,11 +20,11 @@ function connectivity = createConnectionMatrix(n)
     end
 
     for i = 1:n
-        % Connect to left neurons
-        for j = 1:leftConnections
-            connectionIndex = mod(i - j, n) + 1; % Left connection
-            connectionMatrix(i, j) = connectionIndex;
-        end
+        % % Connect to left neurons
+        % for j = 1:leftConnections
+        %     connectionIndex = mod(i - j, n) + 1; % Left connection
+        %     connectionMatrix(i, j) = connectionIndex;
+        % end
 
         % Connect to right neurons
         for j = 1:rightConnections
