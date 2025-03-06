@@ -8,10 +8,12 @@ g_bar_ee =  0.01; % Strength for max conductance
 %g_bar_ei = 0.000001;
 g_bar_ii =  0.004; % g_ee * 0.4
 %g_bar_ie = 0.000001;
-tau = 50 * 1e+5;         % Time constant 
+tau = 52.008 * 1e+5;         % Time constant 
 E_syn_e = 0;   % pre-synaptic reversal potential for E
 E_syn_i = -75; % pre-synaptic reversal potential for I
 v_post = -65;  % post-synaptic membrane potential (rest)
+
+%disp(spk_times_e)
 
 
 
@@ -122,9 +124,6 @@ end
 
 I_syn_e = g_e_new .*(E_syn_e-v_post) .* A(k);
 I_syn_i = g_i_new .*(E_syn_i-v_post) .* A(k);
-
-I_syn_e = I_syn_e ;
-I_syn_i = I_syn_i ;
 
 
 %disp(I_syn_e)
