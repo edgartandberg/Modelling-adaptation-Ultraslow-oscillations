@@ -22,7 +22,7 @@ size_network = 6; % amount of both excitatory and inhibitory neurons, size of ne
 i_ext_e_all = zeros(size_network,m_steps);
 i_ext_i_all = zeros(size_network,m_steps);
 
-% Example usage
+% Make connectivity
 n = size_network; % Number of neurons
 connectivity = createConnectionMatrix(n);
 %disp(connectivity);
@@ -43,8 +43,8 @@ spiketrains_i_all = cell(1, size_network);
 
 for i = 1:size_network
 
-spiketrains_e_all{i} = v_e;
-spiketrains_i_all{i} = v_i;
+    spiketrains_e_all{i} = v_e;
+    spiketrains_i_all{i} = v_i;
 
 end
 
@@ -113,13 +113,22 @@ A = 10*ones(1, m_steps); %Normalization constant
 
 %%
 
+for i = 1:size_network
+    if i == size_network
+        i_ext_e = max_amps;
+
+    else
+        i_ext_e = 0;
+
+    end
+end
 
 
 
 for k=2:m_steps
     for  j = 1:size_network
-    i_ext_e = max_amps;
-    i_ext_i = max_amps;
+    % i_ext_e = max_amps;
+    % i_ext_i = max_amps;
 
     v_e = spiketrains_e_all{j};
 
@@ -132,11 +141,10 @@ for k=2:m_steps
     n_i = n_i_all{j};
 
 
+
+
     
     [v_e, t_e, e_counter, m_e, h_e, n_e, spk_times_e] = excitatory_HH_pass2(v_e, k, t_final,dt,i_ext_e, m_e, h_e, n_e);
-    
-    
-    
     [v_i, t_i, i_counter, m_i, h_i, n_i, spk_times_i] = inhibitory_HH_pass2(v_i, k, t_final,dt,i_ext_i, m_i, h_i, n_i);
     
 
@@ -185,7 +193,7 @@ for k=2:m_steps
     
     I_syn_e = 0;
     for i = 1:length(connections_synaptic)
-        I_syn_e = I_syn_e + I_syn_e_all(connections_synaptic(i),k-1);
+        I_syn_e = I_syn_e_all(connections_synaptic(i),k-1);
     end
 
 

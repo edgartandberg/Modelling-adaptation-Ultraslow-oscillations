@@ -5,7 +5,7 @@ clearvars
 
 tic
 
-t_final=200; % in ms
+t_final=2000; % in ms
 dt=0.01;
 dt05=dt/2;
 m_steps=round(t_final/dt);
@@ -14,7 +14,7 @@ m_steps=round(t_final/dt);
 max_amps = 1.5; % in A
 
 i_ext_e = max_amps*ones(1,m_steps);
-i_ext_i = max_amps*ones(1,m_steps);
+i_ext_i = 0;
 
 
 
@@ -22,7 +22,9 @@ size_network = 6; % amount of both excitatory and inhibitory neurons, size of ne
 i_ext_e_all = zeros(size_network,m_steps);
 i_ext_i_all = zeros(size_network,m_steps);
 
-% Example usage
+%%
+
+% Make connectivity
 n = size_network; % Number of neurons
 connectivity = createConnectionMatrix(n);
 %disp(connectivity);
@@ -43,8 +45,8 @@ spiketrains_i_all = cell(1, size_network);
 
 for i = 1:size_network
 
-spiketrains_e_all{i} = v_e;
-spiketrains_i_all{i} = v_i;
+    spiketrains_e_all{i} = v_e;
+    spiketrains_i_all{i} = v_i;
 
 end
 
@@ -104,6 +106,15 @@ n_i(1)=0.5;
 g_e = zeros(1, m_steps); % intialize synaptic conductance
 g_i = zeros(1, m_steps);
 
+
+for i = 1:size_network
+
+    g_e_all{i} = g_e;
+    g_i_all{i} = g_i;
+
+end
+
+
 I_syn_e = zeros(1, m_steps);
 I_syn_i = zeros(1, m_steps);
 
@@ -113,13 +124,22 @@ A = 10*ones(1, m_steps); %Normalization constant
 
 %%
 
+for i = 1:size_network
+    if i == size_network
+        i_ext_e = max_amps;
+
+    else
+        i_ext_e = 0;
+
+    end
+end
 
 
 
 for k=2:m_steps
     for  j = 1:size_network
-    i_ext_e = max_amps;
-    i_ext_i = max_amps;
+    % i_ext_e = max_amps;
+    % i_ext_i = max_amps;
 
     v_e = spiketrains_e_all{j};
 
@@ -135,33 +155,11 @@ for k=2:m_steps
 
 
     
-    [v_e, t_e, e_counter, m_e, h_e, n_e, spk_times_e] = excitatory_HH_pass2(v_e, k, t_final,dt,i_ext_e, m_e, h_e, n_e);
-    [v_i, t_i, i_counter, m_i, h_i, n_i, spk_times_i] = inhibitory_HH_pass2(v_i, k, t_final,dt,i_ext_i, m_i, h_i, n_i);
+    % [v_e, t_e, e_counter, m_e, h_e, n_e, spk_times_e] = excitatory_HH_pass2(v_e, k, t_final,dt,i_ext_e, m_e, h_e, n_e);
+    % [v_i, t_i, i_counter, m_i, h_i, n_i, spk_times_i] = inhibitory_HH_pass2(v_i, k, t_final,dt,i_ext_i, m_i, h_i, n_i);
     
 
 
-
-
-    % spk_array_e(k) = spk_times_e;
-    % spk_array_i(k) = spk_times_i;
-
-    g_e_old = g_e(k-1);
-    g_i_old = g_i(k-1);
-
-    % generate synaptic currents
-
-    [I_syn_e, I_syn_i, g_e_new, g_i_new] = synaptic_current(g_e_old, g_i_old, k, spk_times_e, spk_times_i, A); % generating synaptic current
-    
-    g_e(k) = g_e_new;
-    g_i(k) = g_i_new;
-
-
-    g_e_all{j} = g_e;
-    g_i_all{j} = g_i;
-    
-    
-    I_syn_e_all(j, k) = I_syn_e; % Store the synaptic current for excitatory
-    I_syn_i_all(j, k) = I_syn_i; % Store the inhibitory synaptic current
 
     % run them all through excitatory_HH and inhibitory_HH again with the
     % external current + synaptic current, for every neuron.
@@ -184,7 +182,7 @@ for k=2:m_steps
     
     I_syn_e = 0;
     for i = 1:length(connections_synaptic)
-        I_syn_e = I_syn_e_all(connections_synaptic(i),k-1);
+        I_syn_e = I_syn_e + I_syn_e_all(connections_synaptic(i),k-1);
     end
 
 
@@ -194,7 +192,7 @@ for k=2:m_steps
 
 
 
-    if j ~= size_network% every other neuron but the last
+    if j ~= size_network % every neuron but the last
         i_syn_e = I_syn_e;
     else
         i_syn_e = i_ext_e + I_syn_e;
@@ -220,6 +218,28 @@ for k=2:m_steps
     i_syn_i = i_ext_i + 3*I_syn_e + size_network*I_syn_i; 
     [v_i, t_i, i_counter, m_i, h_i, n_i, spk_times_i] = inhibitory_HH_pass2(v_i, k, t_final,dt,i_syn_i, m_i, h_i, n_i);
 
+      % generate synaptic currents
+
+
+    g_e_old = g_e_all{j};
+    g_i_old = g_i_all{j};
+
+    g_e_old = g_e_old(k-1);
+    g_i_old = g_i_old(k-1);
+    
+    [I_syn_e, I_syn_i, g_e_new, g_i_new] = synaptic_current(g_e_old, g_i_old, k, spk_times_e, spk_times_i, A); % generating synaptic current
+    
+  
+    g_e(k) = g_e_new;
+    g_i(k) = g_i_new;
+
+
+    g_e_all{j} = g_e;
+    g_i_all{j} = g_i;
+    
+    
+    I_syn_e_all(j, k) = I_syn_e; % Store the synaptic current for excitatory
+    I_syn_i_all(j, k) = I_syn_i; % Store the inhibitory synaptic current
 
 
     % I_syn_e_all(j, k) = I_syn_e; % Store the synaptic current for each network
@@ -231,7 +251,7 @@ for k=2:m_steps
     i_ext_i_all(j,k) = i_ext_i;
 
 
-    % output the spike trains from the excitatory neurons
+   % gating variable
     m_e_all{j} = m_e;
     h_e_all{j} = h_e;
     n_e_all{j} = n_e;

@@ -13,7 +13,7 @@ E_syn_e = 0;   % pre-synaptic reversal potential for E
 E_syn_i = -75; % pre-synaptic reversal potential for I
 v_post = -65;  % post-synaptic membrane potential (rest)
 
-%disp(spk_times_e)
+disp(spk_times_e)
 
 
 

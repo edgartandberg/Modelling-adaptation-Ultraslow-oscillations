@@ -28,16 +28,16 @@ i_counter=0;
 
 
     
-v_inc=(g_na*m_i(k)^3*h_i(k)*(v_na-v_i(k))+ ...
-    g_k*n_i(k)^4*(v_k-v_i(k))+g_l*(v_l-v_i(k))+i_ext_i)/c;
-m_inc=alpha_m(v_i(k))*(1-m_i(k))-beta_m(v_i(k))*m_i(k);
-h_inc=alpha_h(v_i(k))*(1-h_i(k))-beta_h(v_i(k))*h_i(k);
-n_inc=alpha_n(v_i(k))*(1-n_i(k))-beta_n(v_i(k))*n_i(k);
+v_inc=(g_na*m_i(k-1)^3*h_i(k-1)*(v_na-v_i(k-1))+ ...
+    g_k*n_i(k-1)^4*(v_k-v_i(k-1))+g_l*(v_l-v_i(k-1))+i_ext_i)/c;
+m_inc=alpha_m(v_i(k-1))*(1-m_i(k-1))-beta_m(v_i(k-1))*m_i(k-1);
+h_inc=alpha_h(v_i(k-1))*(1-h_i(k-1))-beta_h(v_i(k-1))*h_i(k-1);
+n_inc=alpha_n(v_i(k-1))*(1-n_i(k-1))-beta_n(v_i(k-1))*n_i(k-1);
 
-v_tmp=v_i(k)+dt05*v_inc;
-m_tmp=m_i(k)+dt05*m_inc;
-h_tmp=h_i(k)+dt05*h_inc;
-n_tmp=n_i(k)+dt05*n_inc;
+v_tmp=v_i(k-1)+dt05*v_inc;
+m_tmp=m_i(k-1)+dt05*m_inc;
+h_tmp=h_i(k-1)+dt05*h_inc;
+n_tmp=n_i(k-1)+dt05*n_inc;
 
 v_inc=(g_na*m_tmp^3*h_tmp*(v_na-v_tmp)+ ...
     g_k*n_tmp^4*(v_k-v_tmp)+g_l*(v_l-v_tmp)+i_ext_i)/c;
@@ -48,20 +48,20 @@ n_inc=alpha_n(v_tmp)*(1-n_tmp)-beta_n(v_tmp)*n_tmp;
 
 
 if length(v_inc) > 1
-    v_i(k+1)=v_i(k)+dt*v_inc(k);
-    m_i(k+1)=m_i(k)+dt*m_inc(k);
-    h_i(k+1)=h_i(k)+dt*h_inc(k);
-    n_i(k+1)=n_i(k)+dt*n_inc(k);
+    v_i(k)=v_i(k-1)+dt*v_inc(k-1);
+    m_i(k)=m_i(k-1)+dt*m_inc(k-1);
+    h_i(k)=h_i(k-1)+dt*h_inc(k-1);
+    n_i(k)=n_i(k-1)+dt*n_inc(k-1);
 
 else
-    v_i(k+1)=v_i(k)+dt*v_inc;
-    m_i(k+1)=m_i(k)+dt*m_inc;
-    h_i(k+1)=h_i(k)+dt*h_inc;
-    n_i(k+1)=n_i(k)+dt*n_inc;
+    v_i(k)=v_i(k-1)+dt*v_inc;
+    m_i(k)=m_i(k-1)+dt*m_inc;
+    h_i(k)=h_i(k-1)+dt*h_inc;
+    n_i(k)=n_i(k-1)+dt*n_inc;
 end
 
-if v_i(k) > 20
-    if v_i(k+1) < 20
+if v_i(k-1) > 20
+    if v_i(k) < 20
         i_counter = i_counter+1;
         spk_times_i(i_counter)=k;
     end
