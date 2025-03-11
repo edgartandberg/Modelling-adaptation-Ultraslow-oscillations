@@ -26,3 +26,8 @@ Looking forward to the spring!
 
 Now started my masters thesis! Good to be back. Started off looking into HH type single-neuron models,
 without adaptation for now.
+
+11.03.2025
+
+Long time since here, after much trial and error i finally have some decent sequences from a network built on hodgkin-huxley neurons, 
+by connecting the neurons in a ring. Now for some tuning!
