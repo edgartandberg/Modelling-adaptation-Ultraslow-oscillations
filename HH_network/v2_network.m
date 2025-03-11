@@ -5,13 +5,13 @@ clearvars
 
 tic
 
-t_final=2000; % in ms
+t_final=300; % in ms
 dt=0.01;
 dt05=dt/2;
 m_steps=round(t_final/dt);
 
 
-max_amps = 1.5; % in A
+max_amps = 10; % in A
 
 i_ext_e = max_amps*ones(1,m_steps);
 i_ext_i = 0;
@@ -29,7 +29,7 @@ n = size_network; % Number of neurons
 connectivity = createConnectionMatrix(n);
 %disp(connectivity);
 
-visualizeConnectivityMatrix(connectivity)
+%visualizeConnectivityMatrix(connectivity)
 
 
 %%
@@ -190,12 +190,16 @@ for k=2:m_steps
 % and used for the others. Doesnt work with only one receiving ext.
 % current, unless its the last neuron in the network.
 
+    if k > 500
+        i_ext_e = 0;
+    end
 
+    % i_syn_e = i_ext_e + I_syn_e + size_network*I_syn_i;
 
-    if j ~= size_network % every neuron but the last
-        i_syn_e = I_syn_e;
+    if j == size_network % last neuron
+        i_syn_e = I_syn_e + size_network*I_syn_i;
     else
-        i_syn_e = i_ext_e + I_syn_e;
+        i_syn_e = i_ext_e + I_syn_e + size_network*I_syn_i;
     end
 
     % if j == 1
@@ -268,7 +272,7 @@ end
 
 %% Plot
 
-[spike_times_e, spike_times_i] = rasterPlot_HH(spiketrains_e_all,spiketrains_i_all);
+%[spike_times_e, spike_times_i] = rasterPlot_HH(spiketrains_e_all,spiketrains_i_all);
 
 
 % figure(3)
@@ -280,3 +284,23 @@ end
 % %axis([0 0.1 0 45]); % Axis limits
 
 toc
+
+%%
+
+
+% Create a figure
+f = figure;
+
+% Set the figure size (width, height)
+f.Position = [500, 200, 800, 700]; % [left, bottom, width, height]
+% Loop through each subplot
+for i = 1:6
+    subplot(6, 1, 7 - i); % Create a subplot in a 6x1 grid
+    plot(spiketrains_e_all{1, i}); % Plot the data
+    title(['Spike Train ', num2str(i)]); % Add a title for each subplot
+    xlabel('Time'); % Label for x-axis
+    ylabel('Amplitude'); % Label for y-axis
+end
+
+% Adjust layout for better visibility
+%tight_layout(); % Optional: Use this if you have the 'tight_layout' function available

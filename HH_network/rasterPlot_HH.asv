@@ -40,7 +40,6 @@ end
 % for excitatory raster plot
 pre_array = zeros(1,length(spiketrains_e_all{1}));
 
-figure()
 
 for cellIndex = 1:length(spike_times_e)
     
@@ -70,7 +69,7 @@ for cellIndex = 1:length(spike_times_e)
 end
 
 % Set axis labels and title
-
+figure()
 xlabel('Time (ms)');
 ylabel('Neuron');
 title('Raster plot');
