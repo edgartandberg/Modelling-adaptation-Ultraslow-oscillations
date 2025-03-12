@@ -1,4 +1,4 @@
-function [v_e, t_e, e_counter, m, h, n, spiketimes_e] = excitatory_HH(t_final,dt,i_ext_e)
+function [v_e, t_e, e_counter, m, h, n, spiketimes_e, w_e] = excitatory_HH_adaptation(t_final,dt,i_ext_e)
 %UNTITLED4 Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -14,9 +14,16 @@ v_na = 55; % Sodium reversal potential
 v_l = -65; % Leak reversal potential
 
 
+t_k = 40; % time constant for adaptation current, indexing over k neurons
+a_k = 0.001; % adaptation coupling
+b_k = 0.01; % adaptation gain
+
+
 
 
 m_steps=round(t_final/dt);
+w = zeros(1,m_steps);
+w(1)=0;  % initial conditions adaptation current
 
 
 v_e(1)=-70; % potential for excitatory neuron, initial condition
@@ -48,21 +55,28 @@ for k=1:m_steps
     h_inc=alpha_h(v_tmp)*(1-h_tmp)-beta_h(v_tmp)*h_tmp;
     n_inc=alpha_n(v_tmp)*(1-n_tmp)-beta_n(v_tmp)*n_tmp;
     
-    v_e(k+1)=v_e(k)+dt*v_inc;
+    v_e(k+1)=v_e(k)+dt*v_inc - w(k);
     m(k+1)=m(k)+dt*m_inc;
     h(k+1)=h(k)+dt*h_inc;
     n(k+1)=n(k)+dt*n_inc;
     
-    if v_e(k) > 20
-        if v_e(k+1) < 20
+    if v_e(k) >= -50
+    w(k+1)= w(k) + dt*(a_k*(v_e(k) - v_l) - w(k) + b_k*t_k)/t_k;
+        if v_e(k+1) < -50
             e_counter = e_counter+1;
             spiketimes_e(e_counter) = k;
         end
+    else
+        w(k+1)= w(k) + dt*(a_k*(v_e(k) - v_l) - w(k))/t_k;
     end
     
+
+
 end
 
 t_e=(0:m_steps)*dt;
+
+w_e = w;
 
 
 end
