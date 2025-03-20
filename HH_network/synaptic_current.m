@@ -8,7 +8,7 @@ g_bar_ee =  0.01; % Strength for max conductance
 %g_bar_ei = 0.000001;
 g_bar_ii =  0.004; % g_ee * 0.4
 %g_bar_ie = 0.000001;
-tau = 54.008 * 1e+5;         % Time constant 
+tau = 85 * 1e+5;         % Time constant 
 E_syn_e = 0;   % pre-synaptic reversal potential for E
 E_syn_i = -75; % pre-synaptic reversal potential for I
 v_post = -65;  % post-synaptic membrane potential (rest)
@@ -34,47 +34,7 @@ end
 time_points_e = spk_times_e; % Array of time points for jumps
 time_points_i = spk_times_i; % Array of time points for jumps
 
-%disp(time_points_e)
 
-
-% % Create Heaviside step functions for each time point
-% % H_e = sum(heaviside(k - time_points_e'), 1); % Sum of Heaviside functions
-% % H_i = sum(heaviside(k - time_points_i'), 1); % Same for inhibitory
-% 
-% %disp(H_e)
-% 
-% % % Exponential decay function
-% % decay_e = g_bar * exp(-(t - time_points_e(1))/tau); % Adjust for the first time point
-% % decay_i = g_bar * exp(-(t - time_points_i(1))/tau); % Adjust for the first time point
-% % 
-% % %plot(decay_e)
-% % 
-% 
-% % Initialize conductance arrays
-% %g_e = zeros(size(k)); % Ensure g_e is initialized
-% %g_i = zeros(size(k)); % Ensure g_i is initialized
-% 
-
-
-% % Calculate conductance with decay only after jumps, excitatory
-% 
-% 
-% jump_time = time_points_e;   
-% 
-% 
-% % Apply decay from the activation of heaviside function
-% g_e_new = g_e_old + sum(g_bar * exp(((k) - jump_time) / tau));
-% 
-% 
-% % Inhibitory
-% 
-% %if time_points_i > 1
-% jump_time = time_points_i;
-% 
-% 
-% % Apply decay from the activation of heaviside function
-% g_i_new = g_i_old + sum (g_bar * exp(((k) - jump_time) / tau));
-% %end
 
 
 % Initialize new conductance
@@ -107,14 +67,8 @@ end
 
 
 
-% Plot
-% figure;
-% plot(t, g, 'LineWidth', 2);
-% xlabel('Time (s)');
-% ylabel('Amplitude');
-% title('Exponential Decay with Heaviside Step Function');
-% grid on;
-% axis([0 0.1 0 45]); % Axis limits
+
+
 
 
 

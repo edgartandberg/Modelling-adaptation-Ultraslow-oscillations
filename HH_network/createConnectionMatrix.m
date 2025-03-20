@@ -12,7 +12,7 @@ function connectivity = createConnectionMatrix(n)
 
     % Calculate the number of connections
     if mod(n, 2) == 0
-        leftConnections = n / 6;  % Half of n/3 for left
+        leftConnections = 1;  % Half of n/3 for left, change to limit/increase amount
         rightConnections = n / 6; % Half of n/3 for right
     else
         leftConnections = floor(n / 6);  % Floor for left

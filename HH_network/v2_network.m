@@ -11,7 +11,7 @@ dt05=dt/2;
 m_steps=round(t_final/dt);
 
 
-max_amps = 10; % in A
+max_amps = 15; % in
 
 i_ext_e = max_amps*ones(1,m_steps);
 i_ext_i = 0;
@@ -186,17 +186,18 @@ for k=2:m_steps
     end
 
 
-% Somethings up here, the synaptic current for the last neuron is saved
-% and used for the others. Doesnt work with only one receiving ext.
-% current, unless its the last neuron in the network.
+    % how long external current lasts, in ms
 
-    if k > 500
+current_length = 500;
+
+
+    if k > current_length
         i_ext_e = 0;
     end
 
     % i_syn_e = i_ext_e + I_syn_e + size_network*I_syn_i;
 
-    if j == size_network % last neuron
+    if j > 1 % only first neuron gets ext input
         i_syn_e = I_syn_e + size_network*I_syn_i;
     else
         i_syn_e = i_ext_e + I_syn_e + size_network*I_syn_i;
@@ -272,7 +273,8 @@ end
 
 %% Plot
 
-%[spike_times_e, spike_times_i] = rasterPlot_HH(spiketrains_e_all,spiketrains_i_all);
+[spike_times_e, spike_times_i] = rasterPlot_HH(spiketrains_e_all,spiketrains_i_all, current_length ...
+    );
 
 
 % figure(3)
@@ -287,20 +289,134 @@ toc
 
 %%
 
+% %pause(10)
+% 
+% % Create a figure
+% f = figure;
+% 
+% % Set the figure size (width, height)
+% f.Position = [500, 200, 800, 700]; % [left, bottom, width, height]
+% % Loop through each subplot
+% for i = 1:6
+%     subplot(6, 1, 7 - i); % Create a subplot in a 6x1 grid
+%     plot(spiketrains_e_all{1, i}); % Plot the data
+%     title(['Spike Train ', num2str(i)]); % Add a title for each subplot
+%     xlabel('Time'); % Label for x-axis
+%     ylabel('Amplitude'); % Label for y-axis
+% end
+% 
+% % Adjust layout for better visibility
+% %tight_layout(); % Optional: Use this if you have the 'tight_layout' function available
+%% Time between spikes and velocity
 
-% Create a figure
-f = figure;
+% Time window for checking spikes
+time_window = 2000;
 
-% Set the figure size (width, height)
-f.Position = [500, 200, 800, 700]; % [left, bottom, width, height]
-% Loop through each subplot
-for i = 1:6
-    subplot(6, 1, 7 - i); % Create a subplot in a 6x1 grid
-    plot(spiketrains_e_all{1, i}); % Plot the data
-    title(['Spike Train ', num2str(i)]); % Add a title for each subplot
-    xlabel('Time'); % Label for x-axis
-    ylabel('Amplitude'); % Label for y-axis
+% Array to store the indices of neuron 1 spikes that start a sequence
+sequence_starts_e = [];
+last_spike_indices_e = [];
+
+
+% Check if neuron 1 has spikes
+if ~isempty(spike_times_e{1})
+    % Loop through each spike in neuron 1
+    for spike_idx = 1:length(spike_times_e{1})
+        spike_time = spike_times_e{1}(spike_idx);
+        valid_sequence = true; % Flag to check if the sequence is valid
+
+        last_spike_index_e = [];
+
+        % Check spikes in subsequent neurons
+        for neuron_idx = 2:length(spike_times_e)
+            next_spikes = spike_times_e{neuron_idx};
+            % Check if there are spikes in the next neuron within the time window
+            if isempty(next_spikes) || all(next_spikes < spike_time | next_spikes > spike_time + time_window)
+                valid_sequence = false; % No valid spike found in this neuron
+                break; % Exit the loop if the sequence is broken
+            end
+            % Update the spike_time for the next neuron
+            spike_time = next_spikes(find(next_spikes >= spike_time, 1)); % Get the first valid spike
+            if neuron_idx == length(spike_times_e)
+                last_spike_index_e = find(next_spikes == spike_time, 1); % Get the index of the spike in the last neuron
+            end
+        end
+
+        % If a valid sequence was found, save the index of the spike in neuron 1
+        if valid_sequence
+            sequence_starts_e(end + 1) = spike_idx; % Append the index
+            last_spike_indices_e(end + 1) = last_spike_index_e; % Append the index of the last neuron
+        end
+    end
 end
 
-% Adjust layout for better visibility
-%tight_layout(); % Optional: Use this if you have the 'tight_layout' function available
+% Sequence duration for I neurons
+
+sequence_starts_i = [];
+last_spike_indices_i = [];
+
+
+% Check if neuron 1 has spikes
+if ~isempty(spike_times_i{1})
+    % Loop through each spike in neuron 1
+    for spike_idx = 1:length(spike_times_i{1})
+        spike_time = spike_times_i{1}(spike_idx);
+        valid_sequence = true; % Flag to check if the sequence is valid
+
+        last_spike_index_i = [];
+
+        % Check spikes in subsequent neurons
+        for neuron_idx = 2:length(spike_times_i)
+            next_spikes = spike_times_i{neuron_idx};
+            % Check if there are spikes in the next neuron within the time window
+            if isempty(next_spikes) || all(next_spikes < spike_time | next_spikes > spike_time + time_window)
+                valid_sequence = false; % No valid spike found in this neuron
+                break; % Exit the loop if the sequence is broken
+            end
+            % Update the spike_time for the next neuron
+            spike_time = next_spikes(find(next_spikes >= spike_time, 1)); % Get the first valid spike
+            if neuron_idx == length(spike_times_i)
+                last_spike_index_i = find(next_spikes == spike_time, 1); % Get the index of the spike in the last neuron
+            end
+        end
+
+        % If a valid sequence was found, save the index of the spike in neuron 1
+        if valid_sequence
+            sequence_starts_i(end + 1) = spike_idx; % Append the index
+            last_spike_indices_i(end + 1) = last_spike_index_i; % Append the index of the last neuron
+        end
+    end
+end
+
+
+% disp('Indices of neuron 1 spikes that start a sequence:');
+% disp(sequence_starts);
+
+
+%% Sequence durations
+
+
+ % choose which sequences based on spikes in neuron 1
+for i = 1:length(sequence_starts_e)
+    spike_diff = spike_times_e{1, size_network}(last_spike_indices_e(i)) - spike_times_e{1, 1}(sequence_starts_e(i));
+    spike_diffs_e(1,sequence_starts_e(i)) = spike_diff;
+end
+
+
+
+M_all  = mean(spike_diffs_e);
+
+
+figure()
+pointSize = 100; % Size of the points
+pointColor = 'b'; % Color of the points (can also use RGB triplet or hex code)
+
+% Create the scatter plot with specified size and color
+scatter(sequence_starts_e, spike_diffs_e, pointSize, pointColor, 'filled');
+title('Sequence duration, for each sequence in simulation'); % Add a title for each subplot
+%text(1,M_true*1.04, ['mean duration = ' num2str(M_true)])
+yline(M_all, 'LineWidth', 2, 'LineStyle','--','Color','k')
+xlabel('Sequence duration by sequence index'); % Label for x-axis
+ylabel('Time Difference [ms]'); % Label for y-axis
+
+velocity = (spike_times_e{1, size_network}(end) - spike_times_e{1,1}(end-1));
+
