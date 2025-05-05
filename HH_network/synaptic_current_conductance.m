@@ -34,8 +34,6 @@ end
 g_e_new = g_e;
 g_i_new = g_i;
 
-%
-
 
 if ~isempty(spk_times_e) && any(spk_times_e)
     % Update conductance for excitatory spikes
@@ -48,7 +46,7 @@ elseif k > 1
 end
 
 if ~isempty(spk_times_i) && any(spk_times_i)
-    % Update conductance for excitatory spikes
+    % Update conductance for inhibitory spikes
     for t = spk_times_i(spk_times_i <= k)
         g_i_new(k) = g_i_new(k) + g_bar_ii * exp(-(k - t) / tau);
     end
@@ -60,36 +58,6 @@ end
 
 
 
-% 
-% if ~isempty(spk_times_e) && any(spk_times_e > 0)
-%     % Update conductance for excitatory spikes
-%     for t = spk_times_e
-%         g_e_new = g_e_new + g_bar_ee * exp(-(k-t) / tau);
-%     end
-% else 
-%     g_e_new = g_e_new * exp(-(k) / tau);
-% 
-% end
-% 
-% if ~isempty(spk_times_i) && any(spk_times_i > 0)
-%     % Update conductance for inhibitory spikes
-%     for t = spk_times_i
-%         g_i_new = g_i_new + g_bar_ii * exp(-(k-t) / tau);
-%     end
-% else
-%     g_i_new = g_i_new * exp(-(k) / tau);
-% 
-% end
-
-
-
-
-% g_e = g_e(1:round(t_final/dt)); % making sure g is correct size
-% g_i = g_i(1:round(t_final/dt));
-
-
-
 I_syn_e = g_e_new(k) .*(E_syn_e-v_post) .* A(k);
 I_syn_i = g_i_new(k) .*(E_syn_i-v_post) .* A(k);
 
-%disp(I_syn_e)

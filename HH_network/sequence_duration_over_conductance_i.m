@@ -5,18 +5,20 @@ clearvars
 
 tic
 
-t_final=200; % in ms
+t_final = 300; % in ms
 dt=0.01;
 dt05=dt/2;
 m_steps=round(t_final/dt);
 
-start_amps = 0;
-max_amps = 25; % in
+max_amps = 20; % in
+i_ext_e = max_amps*ones(1,m_steps);
 
-start_amps*ones(1,m_steps);
+start_conductance = 0.04;
+end_conductance   = 0.12;
+step_size = 0.01;
+
+
 i_ext_i = 0;
-
-
 
 size_network = 6; % amount of both excitatory and inhibitory neurons, size of network
 i_ext_e_all = zeros(size_network,m_steps);
@@ -27,7 +29,7 @@ i_ext_i_all = zeros(size_network,m_steps);
 % Make connectivity
 n = size_network; % Number of neurons
 connectivity = createConnectionMatrix(n);
-%disp(connectivity);
+
 
 %visualizeConnectivityMatrix(connectivity)
 
@@ -124,30 +126,25 @@ A = 1*ones(1, m_steps); %Normalization constant
 
 %%
 
-for i = 1:size_network
-    if i == size_network
-        i_ext_e = max_amps;
+conductance_array = (start_conductance:step_size:end_conductance);
 
-    else
-        i_ext_e = 0;
-
-    end
-end
-
-max_amps_array = (start_amps:1:max_amps);
-spike_times_e_all = cell(length(max_amps_array),size_network);
-spike_times_i_all = cell(length(max_amps_array),size_network);
+spike_times_e_all = cell(length(conductance_array),size_network);
+spike_times_i_all = cell(length(conductance_array),size_network);
 
 
-% Looping over array of amps
-for ii = 1:length(max_amps_array)
-    i_ext_e = max_amps_array(ii);
+
+% Looping over array of conductance
+for ii = 1:length(conductance_array)
+    g_bar_ii = conductance_array(ii);
+    %g_bar_ii = conductance_array(ii);
+    g_bar_ee = 0.2;
+
+    %disp(i_ext_e)
+    i_ext_e = max_amps;
 
     for k=2:m_steps
         for  j = 1:size_network
-        % i_ext_e = max_amps;
-        % i_ext_i = max_amps;
-    
+        
         v_e = spiketrains_e_all(j,:);
         v_i = spiketrains_i_all(j,:);
     
@@ -158,15 +155,6 @@ for ii = 1:length(max_amps_array)
         m_i = m_i_all{j};
         h_i = h_i_all{j};
         n_i = n_i_all{j};
-    
-    
-    
-    
-        
-        % [v_e, t_e, e_counter, m_e, h_e, n_e, spk_times_e] = excitatory_HH_pass2(v_e, k, t_final,dt,i_ext_e, m_e, h_e, n_e);
-        % [v_i, t_i, i_counter, m_i, h_i, n_i, spk_times_i] = inhibitory_HH_pass2(v_i, k, t_final,dt,i_ext_i, m_i, h_i, n_i);
-        
-    
     
     
         % run them all through excitatory_HH and inhibitory_HH again with the
@@ -182,12 +170,6 @@ for ii = 1:length(max_amps_array)
             end
         end
         
-        %disp(connections_synaptic)
-        
-        % for i = 1:length(connections_synaptic)
-        %     I_syn_e = I_syn_e + I_syn_e_all(connections_synaptic(i),k-1);
-        % end
-        
         I_syn_e = 0;
         for i = 1:length(connections_synaptic)
             I_syn_e = I_syn_e + I_syn_e_all(connections_synaptic(i),k-1);
@@ -201,6 +183,7 @@ for ii = 1:length(max_amps_array)
     
         if k > current_length
             i_ext_e = 0;
+          
         end
     
         % i_syn_e = i_ext_e + I_syn_e + size_network*I_syn_i;
@@ -210,38 +193,31 @@ for ii = 1:length(max_amps_array)
         else
             i_syn_e = i_ext_e + I_syn_e + size_network*I_syn_i;
         end
-    
-        % if j == 1
-        %     i_syn_e = i_ext_e + I_syn_e + size_network*I_syn_i;
-        % else
-        %     i_syn_e = I_syn_e + size_network*I_syn_i;
-        % 
+
+        % if v_e ~= v_i
+        %     disp('true')
         % end
-    
-    
-        %i_syn_e = i_ext_e + I_syn_e + size_network * I_syn_i;  % correct one from before
-    
-        %i_syn_e = i_ext_e + I_syn_e;
         
         [v_e, t_e, e_counter, m_e, h_e, n_e, spk_times_e] = excitatory_HH_pass2(v_e, k, t_final,dt,i_syn_e, m_e, h_e, n_e);
     
     
         % inhibitory neurons
-
-    
         i_syn_i = i_ext_i + 3*I_syn_e + size_network*I_syn_i; 
         [v_i, t_i, i_counter, m_i, h_i, n_i, spk_times_i] = inhibitory_HH_pass2(v_i, k, t_final,dt,i_syn_i, m_i, h_i, n_i);
 
-          
         % generate synaptic currents
     
     
         g_e = g_e_all{j};
         g_i = g_i_all{j};
     
+
+
+        [I_syn_e, I_syn_i, g_e_new, g_i_new] = synaptic_current_conductance(g_bar_ee, g_bar_ii, g_e, g_i, k,  spk_times_e, spk_times_i, A); % generating synaptic current
         
-        [I_syn_e, I_syn_i, g_e_new, g_i_new] = synaptic_current(v_e, v_i, g_e, g_i, k, spk_times_e, spk_times_i, A); % generating synaptic current
-        
+
+
+
       
         g_e = g_e_new;
         g_i = g_i_new;
@@ -260,7 +236,8 @@ for ii = 1:length(max_amps_array)
         % I_syn_i_all(j, k) = I_syn_i; % Store the inhibitory synaptic current 
         spiketrains_e_all(j,:) = v_e;
         spiketrains_i_all(j,:) = v_i;
-    
+
+
         i_ext_e_all(j,k) = i_ext_e;
         i_ext_i_all(j,k) = i_ext_i;
     
@@ -295,19 +272,14 @@ time_window = 2000;
 % and last neuron. Start in column 1, end in 2.
 % amps along rows
 
-seq_e_points_I = cell(length(max_amps_array),2);
-%seq_i_points_I = cell(length(max_amps_array),2);
+seq_e_points_I = cell(length(conductance_array),2);
+seq_i_points_I = cell(length(conductance_array),2);
 
-for a = 1:length(max_amps_array)
+for a = 1:length(conductance_array)
 
 % Array to store the indices of neuron 1 spikes that start a sequence
 sequence_starts_e = [];
 last_spike_indices_e = [];
-
-% Sequence duration for I neurons
-
-sequence_starts_i = [];
-last_spike_indices_i = [];
 
 
 % Check if neuron 1 has spikes
@@ -342,6 +314,10 @@ if ~isempty(spike_times_e_all{a})
     end
 end
 
+% Sequence duration for I neurons
+
+sequence_starts_i = [];
+last_spike_indices_i = [];
 
 
 % Check if neuron 1 has spikes
@@ -390,129 +366,72 @@ end
 
 %% Calculate duration
 
-for ii = 1:length(max_amps_array)
+for ii = 1:length(conductance_array)
     for i = 1:length(seq_e_points_I{ii})
-        spike_diff = spike_times_e_all{ii, size_network}(seq_e_points_I{ii,2}(i)) - spike_times_e_all{ii, 1}(seq_e_points_I{ii,1}(i));
-        spike_diffs_e_all{ii,seq_e_points_I{ii}(i)} = spike_diff;
+        spike_diff_e = spike_times_e_all{ii, size_network}(seq_e_points_I{ii,2}(i)) - spike_times_e_all{ii, 1}(seq_e_points_I{ii,1}(i));
+        spike_diffs_e_all{ii,seq_e_points_I{ii}(i)} = spike_diff_e;
     end
 end
 
-for ii = 1:length(max_amps_array)
+for ii = 1:length(conductance_array)
     for i = 1:length(seq_i_points_I{ii})
-        spike_diff = spike_times_i_all{ii, size_network}(seq_i_points_I{ii,2}(i)) - spike_times_i_all{ii, 1}(seq_i_points_I{ii,1}(i));
-        spike_diffs_i_all{ii,seq_i_points_I{ii}(i)} = spike_diff;
+        spike_diff_i = spike_times_i_all{ii, size_network}(seq_i_points_I{ii,2}(i)) - spike_times_i_all{ii, 1}(seq_i_points_I{ii,1}(i));
+        spike_diffs_i_all{ii,seq_i_points_I{ii}(i)} = spike_diff_i;
     end
 end
 
-% spike_diffs_i_all = cellfun(@(x) x * 0.01, spike_diffs_i_all, 'UniformOutput', false);
-spike_diffs_e_all = cellfun(@(x) x * 0.01, spike_diffs_e_all, 'UniformOutput', false);
+spike_diffs_i_all = cellfun(@(x) x * 0.01, spike_diffs_i_all, 'UniformOutput', false);
 
 
-%% Scatter plot for durations
-
-
-
-% Number of rows in the cell array
-numRows = size(spike_diffs_e_all, 1);
+%% Scatter plot for durations, I neurons
 
 
 
-%Plot excitatory neurons
+%Plot inhibitory neurons
 figure;
 hold on;
 
+%color = [0 1 1];
+[numRows, numCols] = size(spike_diffs_i_all);
 
-[numRows, numCols] = size(spike_diffs_e_all);
+% Initialize a vector to hold the average values
+averages_i = zeros(numRows, 1);
 
 % Loop through each row
 for row = 1:numRows
     % Extract the values from the current row
-    yValues_e = cell2mat(spike_diffs_e_all(row, :));
+    yValues = cell2mat(spike_diffs_i_all(row, :));
+
     % Calculate the average for the current row
-    % averages_e(row) = mean(yValues);
+    averages_i(row) = mean(yValues);
 
     % Initialize colors for the current row
-    colors = zeros(length(yValues_e), 3); % m-by-3 matrix for current row
+    colors = zeros(length(yValues), 3); % m-by-3 matrix for current row
 
-    for col = 1:length(yValues_e)
-        % Create a gradient from light magenta to dark blue
-        colors(col, :) = [(1 - col / numCols), 0, (col / numCols)]; % RGB triplet for magenta to blue
+    % Calculate colors for each point in the current row
+    for col = 1:length(yValues)
+        % Create a gradient from magenta to blue
+        colors(col, :) = [(1 - col / (length(yValues) - 1)), 0, (col / (length(yValues) - 1))]; % RGB triplet for magenta to blue
     end
 
     % Create a scatter plot for the current row
-    scatter(max_amps_array(row) * ones(size(yValues_e)), yValues_e, 100, colors, 'filled');
+    scatter(conductance_array(row) * ones(size(yValues)), yValues, 100, colors, 'filled');
     hold on; % Keep the current plot
 end
 
-average_array = [];
+colors(end,:) = colors(end-1,:);
 
-for i = 1:length(spike_diffs_e_all(:,1))
-    average_array = [average_array max_amps_array(i)];
+    average_array = [];
+
+for i = 1:length(spike_diffs_i_all(:,1))
+    average_array = [average_array conductance_array(i)];
+
 end
 
 
 % Plot the average line
-%avgLine_e = plot(average_array, averages_e, 'k-', 'LineWidth', 2, 'DisplayName', 'Mean sequence duration');
+%avgLine_i = plot(average_array, averages_i, 'k-', 'LineWidth', 2, 'DisplayName', 'Mean sequence duration');
 
-
-% Change font properties
-ax = gca; % Get current axes
-ax.FontName = 'Helvetica-Narrow'; % Set font name
-ax.FontSize = 14; % Set font size
-
-% Create a color bar
-caxis([1 numCols]); % Set color axis limits
-colormap(colors); % Set the colormap to the calculated colors
-cb = colorbar; % Create the color bar
-
-% Set the color bar labels to indicate the first and last columns
-cb.Ticks = [1, numCols]; % Set ticks at the start and end
-cb.TickLabels = {'First sequence', sprintf('Last sequence', numCols)}; % Label the ticks
-
-hold off;
-grid on;
-xlabel('Input Current [A]');
-ylabel('Sequence duration [ms]');
-% xlim([max_amps_array(1)-1 max_amps_array(end)+1]); 
-% ylim([30 43]);
-title('Sequence durations as function of external current, excitatory population');
-
-xticks(max_amps_array(1):1:max_amps_array(end));
-%legend(avgLine_e); % This will display the legend with 'Averages'
-
-
-toc
-
-%%
-
-% %Plot inhibitory neurons
-figure;
-hold on;
-
-
-
-
-[numRows, numCols] = size(spike_diffs_i_all);
-
-%averages_i = zeros(numRows, 1);
-
-% Loop through each row
-for row = 1:numRows
-    % Extract the values from the current row
-    yValues_i = cell2mat(spike_diffs_i_all(row, :));
-
-    % Calculate colors for each column based on the column index
-    colors = zeros(length(yValues_i), 3); % m-by-3 matrix for current row
-
-    for col = 1:numCols
-        % Create a gradient from light magenta to dark blue
-        colors(col, :) = [(1 - col / numCols), 0, (col / numCols)]; % RGB triplet for magenta to blue
-    end
-
-    % Create a scatter plot for the current row
-    scatter(max_amps_array(row) * ones(size(yValues_i)), yValues_i(row), 100, colors, 'filled');
-    hold on; % Keep the current plot
-end
 
 % Change font properties
 ax = gca; % Get current axes
@@ -526,16 +445,95 @@ cb = colorbar; % Create the color bar
 
 % Set the color bar labels to indicate the first and last columns
 cb.Ticks = [1, numCols]; % Set ticks at the start and end
-cb.TickLabels = {'First sequence', sprintf('Last sequence', numCols)}; % Label the ticks
+cb.TickLabels = {'Earlier sequence', sprintf('Later sequence', numCols)}; % Label the ticks
+
 
 hold off;
 grid on;
-xlabel('Input Current [A]');
+xlabel('Conductance [mS/cm^2]');
 ylabel('Sequence duration [ms]');
-xlim([max_amps_array(1)-1 max_amps_array(end)+1]); 
-%ylim([30 43]);
-title('Sequence durations as function of external current, inhibitory population');
+xlim([conductance_array(1)-step_size conductance_array(end)+step_size]); 
+title('Sequence durations as function of excitatory conductance, inhibitory population');
+xticks(conductance_array(1):step_size:conductance_array(end));
 
-xticks(max_amps_array(1):1:max_amps_array(end));
+%legend(avgLine_i); % This will display the legend with 'Averages'
 
 
+%% Scatter plot for durations, E neurons
+
+
+%Plot inhibitory neurons
+figure;
+hold on;
+
+%color = [0 1 1];
+[numRows, numCols] = size(spike_diffs_e_all);
+
+% Initialize a vector to hold the average values
+averages_e = zeros(numRows, 1);
+
+% Loop through each row
+for row = 1:numRows
+    % Extract the values from the current row
+    yValues = cell2mat(spike_diffs_e_all(row, :));
+
+    % Calculate the average for the current row
+    averages_e(row) = mean(yValues);
+
+    % Initialize colors for the current row
+    colors = zeros(length(yValues-1), 3); % m-by-3 matrix for current row
+
+    % Calculate colors for each point in the current row
+    for col = 1:length(yValues)
+        % Create a gradient from magenta to blue
+        colors(col, :) = [(1 - col / (length(yValues) - 1)), 0, (col / (length(yValues) - 1))]; % RGB triplet for magenta to blue
+    end
+
+    % Create a scatter plot for the current row
+    scatter(conductance_array(row) * ones(size(yValues)), yValues, 100, colors, 'filled');
+    hold on; % Keep the current plot
+end
+
+
+
+    average_array = [];
+
+for i = 1:length(spike_diffs_i_all(:,1))
+    average_array = [average_array conductance_array(i)];
+
+end
+
+
+% Plot the average line
+%avgLine_i = plot(average_array, averages_i, 'k-', 'LineWidth', 2, 'DisplayName', 'Mean sequence duration');
+
+
+% Change font properties
+ax = gca; % Get current axes
+ax.FontName = 'Helvetica-Narrow'; % Set font name
+ax.FontSize = 14; % Set font size
+
+colors = colors(1:end-2,:);
+
+% Create a color bar
+clim([1 numCols]); % Set color axis limits
+colormap(colors); % Set the colormap to the calculated colors
+cb = colorbar; % Create the color bar
+
+% Set the color bar labels to indicate the first and last columns
+cb.Ticks = [1, numCols]; % Set ticks at the start and end
+cb.TickLabels = {'Earlier sequence', sprintf('Later sequence', numCols)}; % Label the ticks
+
+
+hold off;
+grid on;
+xlabel('Conductance [mS/cm^2]');
+ylabel('Sequence duration [ms]');
+xlim([conductance_array(1)-step_size conductance_array(end)+step_size]); 
+title('Sequence durations as function of inhibitory conductance, excitatory population');
+xticks(conductance_array(1):step_size:conductance_array(end));
+
+%legend(avgLine_i); % This will display the legend with 'Averages'
+
+
+%toc

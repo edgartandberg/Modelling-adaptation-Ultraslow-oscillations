@@ -295,14 +295,10 @@ time_window = 2000;
 % and last neuron. Start in column 1, end in 2.
 % amps along rows
 
-seq_e_points_I = cell(length(max_amps_array),2);
-%seq_i_points_I = cell(length(max_amps_array),2);
+seq_i_points_I = cell(length(max_amps_array),2);
 
 for a = 1:length(max_amps_array)
 
-% Array to store the indices of neuron 1 spikes that start a sequence
-sequence_starts_e = [];
-last_spike_indices_e = [];
 
 % Sequence duration for I neurons
 
@@ -310,37 +306,6 @@ sequence_starts_i = [];
 last_spike_indices_i = [];
 
 
-% Check if neuron 1 has spikes
-if ~isempty(spike_times_e_all{a})
-    % Loop through each spike in neuron 1
-    for spike_idx = 1:length(spike_times_e_all{a})
-        spike_time = spike_times_e_all{a}(spike_idx);
-        valid_sequence = true; % Flag to check if the sequence is valid
-
-        last_spike_index_e = [];
-
-        % Check spikes in subsequent neurons
-        for neuron_idx = 2:size_network
-            next_spikes = spike_times_e_all{a,neuron_idx};
-            % Check if there are spikes in the next neuron within the time window
-            if isempty(next_spikes) || all(next_spikes < spike_time | next_spikes > spike_time + time_window)
-                valid_sequence = false; % No valid spike found in this neuron
-                break; % Exit the loop if the sequence is broken
-            end
-            % Update the spike_time for the next neuron
-            spike_time = next_spikes(find(next_spikes >= spike_time, 1)); % Get the first valid spike
-            if neuron_idx == size_network
-                last_spike_index_e = find(next_spikes == spike_time, 1); % Get the index of the spike in the last neuron
-            end
-        end
-
-        % If a valid sequence was found, save the index of the spike in neuron 1
-        if valid_sequence
-            sequence_starts_e(end + 1) = spike_idx; % Append the index
-            last_spike_indices_e(end + 1) = last_spike_index_e; % Append the index of the last neuron
-        end
-    end
-end
 
 
 
@@ -378,8 +343,6 @@ end
 
 
 
-seq_e_points_I{a,1} = sequence_starts_e;
-seq_e_points_I{a,2} = last_spike_indices_e;
 
 seq_i_points_I{a,1} = sequence_starts_i;
 seq_i_points_I{a,2} = last_spike_indices_i;
@@ -391,30 +354,19 @@ end
 %% Calculate duration
 
 for ii = 1:length(max_amps_array)
-    for i = 1:length(seq_e_points_I{ii})
-        spike_diff = spike_times_e_all{ii, size_network}(seq_e_points_I{ii,2}(i)) - spike_times_e_all{ii, 1}(seq_e_points_I{ii,1}(i));
-        spike_diffs_e_all{ii,seq_e_points_I{ii}(i)} = spike_diff;
-    end
-end
-
-for ii = 1:length(max_amps_array)
     for i = 1:length(seq_i_points_I{ii})
         spike_diff = spike_times_i_all{ii, size_network}(seq_i_points_I{ii,2}(i)) - spike_times_i_all{ii, 1}(seq_i_points_I{ii,1}(i));
         spike_diffs_i_all{ii,seq_i_points_I{ii}(i)} = spike_diff;
     end
 end
 
-% spike_diffs_i_all = cellfun(@(x) x * 0.01, spike_diffs_i_all, 'UniformOutput', false);
-spike_diffs_e_all = cellfun(@(x) x * 0.01, spike_diffs_e_all, 'UniformOutput', false);
-
-
-%% Scatter plot for durations
+spike_diffs_i_all = cellfun(@(x) x * 0.01, spike_diffs_i_all, 'UniformOutput', false);
 
 
 
-% Number of rows in the cell array
-numRows = size(spike_diffs_e_all, 1);
+%% scatter plot for durations
 
+%Plot inhibitory neurons
 
 
 %Plot excitatory neurons
@@ -422,37 +374,37 @@ figure;
 hold on;
 
 
-[numRows, numCols] = size(spike_diffs_e_all);
+[numRows, numCols] = size(spike_diffs_i_all);
 
 % Loop through each row
 for row = 1:numRows
     % Extract the values from the current row
-    yValues_e = cell2mat(spike_diffs_e_all(row, :));
+    yValues = cell2mat(spike_diffs_i_all(row, :));
     % Calculate the average for the current row
-    % averages_e(row) = mean(yValues);
+    averages_i(row) = mean(yValues);
 
     % Initialize colors for the current row
-    colors = zeros(length(yValues_e), 3); % m-by-3 matrix for current row
+    colors = zeros(length(yValues), 3); % m-by-3 matrix for current row
 
-    for col = 1:length(yValues_e)
+    for col = 1:length(yValues)
         % Create a gradient from light magenta to dark blue
         colors(col, :) = [(1 - col / numCols), 0, (col / numCols)]; % RGB triplet for magenta to blue
     end
 
     % Create a scatter plot for the current row
-    scatter(max_amps_array(row) * ones(size(yValues_e)), yValues_e, 100, colors, 'filled');
+    scatter(max_amps_array(row) * ones(size(yValues)), yValues, 100, colors, 'filled');
     hold on; % Keep the current plot
 end
 
 average_array = [];
 
-for i = 1:length(spike_diffs_e_all(:,1))
+for i = 1:length(spike_diffs_i_all(:,1))
     average_array = [average_array max_amps_array(i)];
 end
 
 
 % Plot the average line
-%avgLine_e = plot(average_array, averages_e, 'k-', 'LineWidth', 2, 'DisplayName', 'Mean sequence duration');
+avgLine_i = plot(average_array, averages_i, 'k-', 'LineWidth', 2, 'DisplayName', 'Mean sequence duration');
 
 
 % Change font properties
@@ -475,67 +427,10 @@ xlabel('Input Current [A]');
 ylabel('Sequence duration [ms]');
 % xlim([max_amps_array(1)-1 max_amps_array(end)+1]); 
 % ylim([30 43]);
-title('Sequence durations as function of external current, excitatory population');
-
-xticks(max_amps_array(1):1:max_amps_array(end));
-%legend(avgLine_e); % This will display the legend with 'Averages'
-
-
-toc
-
-%%
-
-% %Plot inhibitory neurons
-figure;
-hold on;
-
-
-
-
-[numRows, numCols] = size(spike_diffs_i_all);
-
-%averages_i = zeros(numRows, 1);
-
-% Loop through each row
-for row = 1:numRows
-    % Extract the values from the current row
-    yValues_i = cell2mat(spike_diffs_i_all(row, :));
-
-    % Calculate colors for each column based on the column index
-    colors = zeros(length(yValues_i), 3); % m-by-3 matrix for current row
-
-    for col = 1:numCols
-        % Create a gradient from light magenta to dark blue
-        colors(col, :) = [(1 - col / numCols), 0, (col / numCols)]; % RGB triplet for magenta to blue
-    end
-
-    % Create a scatter plot for the current row
-    scatter(max_amps_array(row) * ones(size(yValues_i)), yValues_i(row), 100, colors, 'filled');
-    hold on; % Keep the current plot
-end
-
-% Change font properties
-ax = gca; % Get current axes
-ax.FontName = 'Helvetica-Narrow'; % Set font name
-ax.FontSize = 14; % Set font size
-
-% Create a color bar
-clim([1 numCols]); % Set color axis limits
-colormap(colors); % Set the colormap to the calculated colors
-cb = colorbar; % Create the color bar
-
-% Set the color bar labels to indicate the first and last columns
-cb.Ticks = [1, numCols]; % Set ticks at the start and end
-cb.TickLabels = {'First sequence', sprintf('Last sequence', numCols)}; % Label the ticks
-
-hold off;
-grid on;
-xlabel('Input Current [A]');
-ylabel('Sequence duration [ms]');
-xlim([max_amps_array(1)-1 max_amps_array(end)+1]); 
-%ylim([30 43]);
 title('Sequence durations as function of external current, inhibitory population');
 
 xticks(max_amps_array(1):1:max_amps_array(end));
+%legend(avgLine_i); % This will display the legend with 'Averages'
 
+%toc
 
