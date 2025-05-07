@@ -116,7 +116,7 @@ end
 xlabel('Time (ms)');
 ylabel('Neuron');
 title('Raster plot');
-axis([0 100 0 6])
+axis([0 1000 0 6])
 
 
 

@@ -117,7 +117,7 @@ spiketimes_e = [];
 
 
     if v_e(k-1) > 20
-        if v_e(k+1) < 20
+        if v_e(k) < 20
             e_counter = e_counter+1;
             spiketimes_e(e_counter) = k;
         end

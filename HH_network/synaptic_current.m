@@ -4,10 +4,10 @@ function [I_syn_e, I_syn_i, g_e_new, g_i_new] = synaptic_current(v_e, v_i, g_e, 
 
 
 % Parameters
-g_bar_ee =  1.5; % Strength for max conductance
+g_bar_ee =  0.3; % Strength for max conductance
 %g_bar_ei = 0.000001;
-g_bar_ii =  0.08; % g_ee * 0.4
-%g_bar_ie = 0.000001;
+g_bar_ii =  0.004; % g_ee * 0.4
+%g_bar_ie = 04000001;
 tau = 1000;         % Time constant, *0.01 for tau in ms
 E_syn_e = 0;   % pre-synaptic reversal potential for E
 E_syn_i = -75; % pre-synaptic reversal potential for I
