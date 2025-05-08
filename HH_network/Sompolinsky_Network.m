@@ -4,7 +4,7 @@ clearvars
 
 tic
 
-t_final=300; % in ms
+t_final=1000; % in ms
 dt=0.01;
 dt05=dt/2;
 m_steps=round(t_final/dt);
@@ -298,7 +298,7 @@ end
 
 t_e = t_e(1:end-1);
 
-toc
+
 %% Plot
 
 [spike_times_e, spike_times_i] = rasterPlot_HH(spiketrains_e_all,spiketrains_i_all, current_length ...
@@ -319,13 +319,15 @@ toc
 %% Calculate sequence duration
 % Checks where the first sequence starts in the first neuron, then takes 
 % time difference from first spike in first neuron to last spike in last neuron.
+% Spikes are binned into 'bursts' for each first and last neuron, to
+% calculate the sequence duration.
 % 8000 in line 325 here is 80 ms in the simulation.
 
 
 spikes_bursts_e = [];
 
 for i = 1:length(spike_times_e{1, 1})-1
-    if (spike_times_e{1, 1}(i+1)) - (spike_times_e{1, 1}(i)) <= 6000 
+    if (spike_times_e{1, 1}(i+1)) - (spike_times_e{1, 1}(i)) <= 4000 
         spikes_bursts_e = [spikes_bursts_e, i];
     end
 end
@@ -350,61 +352,65 @@ for i = 1:length(spikes_bursts_e)
     end
 end
 
-% Add the last burst if it exists
 if ~isempty(current_burst_e)
     current_burst_e(end + 1) = current_burst_e(end) + 1; % Append last value + 1
     bursts_e{end + 1} = current_burst_e;
 end
 
 
+% --------------------------------------------- %
+% Binning spikes in last neuron in bursts as well
+% --------------------------------------------- %
 
 
-time_window = 5000;
+
+last_bursts_e = [];
+    
+% Bursts analysis for last neuron as well
+for i = 1:length(spike_times_e{size_network, 1})-1
+    if (spike_times_e{size_network, 1}(i+1)) - (spike_times_e{size_network, 1}(i)) <= 4000  
+        last_bursts_e = [last_bursts_e, i];
+    end
+end
+
+% Initialize variables
+final_bursts_e = {}; 
+current_burst_e = []; 
+
+% Loop through the array
+for i = 1:length(last_bursts_e)
+    % Add current number to the current burst
+    current_burst_e(end + 1) = last_bursts_e(i);
+
+    % Check if the next number is more than 1 larger than the current
+    if i < length(last_bursts_e) && (last_bursts_e(i + 1) - last_bursts_e(i) > 1)
+        % Append the last value + 1 to the current burst
+        current_burst_e(end + 1) = current_burst_e(end) + 1;
+
+        % Store the current burst and reset
+        final_bursts_e{end + 1} = current_burst_e; 
+        current_burst_e = []; % Reset for the next burst
+    end
+end
+
+if ~isempty(current_burst_e)
+    current_burst_e(end + 1) = current_burst_e(end) + 1; % Append last value + 1
+    final_bursts_e{end + 1} = current_burst_e;
+end
+
+
+time_window = 8000; % time window to check next spike in sequence
 
 % Array to store the indices of neuron 1 spikes that start a sequence
 sequence_starts_e = [];
 last_spike_indices_e = [];
 
-
-% for i = 1:length(bursts_e)
-% 
-%     % Check if neuron 1 has spikes
-%     if ~isempty(bursts_e{i})
-%         % Loop through each spike in neuron 1
-%         for spike_idx = 1:length(bursts_e{i})
-%             spike_time = spike_times_e{i}(spike_idx);
-%             valid_sequence = true; % Flag to check if the sequence is valid
-% 
-%             last_spike_index_e = [];
-% 
-%             % Check spikes in subsequent neurons
-%             for neuron_idx = 2:length(spike_times_e)
-%                 next_spikes = spike_times_e{neuron_idx};
-%                 % Check if there are spikes in the next neuron within the time window
-%                 if isempty(next_spikes) || all(next_spikes < spike_time | next_spikes > spike_time + time_window)
-%                     valid_sequence = false; % No valid spike found in this neuron
-%                     break; % Exit the loop if the sequence is broken
-%                 end
-%                 % Update the spike_time for the next neuron
-%                 spike_time = next_spikes(find(next_spikes >= spike_time, 1)); % Get the first valid spike
-%                 if neuron_idx == length(spike_times_e)
-%                     last_spike_index_e = find(next_spikes == spike_time, 1); % Get the index of the spike in the last neuron
-%                 end
-%             end
-% 
-%             % If a valid sequence was found, save the index of the spike in neuron 1
-%             if valid_sequence
-%                 sequence_starts_e(end + 1) = spike_idx; % Append the index
-%                 last_spike_indices_e(end + 1) = last_spike_index_e; % Append the index of the last neuron
-%             end
-%         end 
-%     end
-% 
-% end
+% --------------------------------------------- %
+% Calculating durations from binned bursts
+% --------------------------------------------- %
 
 results_sequences_e = [];
 
-% Assuming bursts_e, spike_times_e, and time_window are defined
 for i = 1:length(bursts_e)
     % Check if neuron 1 has spikes in the current burst
     if ~isempty(bursts_e{i})
@@ -412,9 +418,9 @@ for i = 1:length(bursts_e)
         first_spike_time = []; % To store the first spike time
         last_spike_time = []; % To store the last spike time
 
-        % Loop through each spike in neuron 1
+        % Loop through each spike in neuron 1 in all bursts
         for spike_idx = 1:length(bursts_e{i})
-            spike_time = spike_times_e{i}(spike_idx);
+            spike_time = spike_times_e{1}(bursts_e{i}(spike_idx));
             valid_sequence = true; % Flag to check if the sequence is valid
             last_spike_index_e = [];
 
@@ -424,6 +430,14 @@ for i = 1:length(bursts_e)
                 % Check if there are spikes in the next neuron within the time window
                 if isempty(next_spikes) || all(next_spikes < spike_time | next_spikes > spike_time + time_window)
                     valid_sequence = false; % No valid spike found in this neuron
+                    % disp('neuron')
+                    % disp(neuron_idx)
+                    % disp('burst')
+                    % disp(i)
+                    % disp('spike')
+                    % disp(spike_idx)
+                    % disp('spike')
+                    % disp(spike_time)
                     break; % Exit the loop if the sequence is broken
                 end
                 % Update the spike_time for the next neuron
@@ -437,10 +451,12 @@ for i = 1:length(bursts_e)
             if valid_sequence
                 valid_sequence_count = valid_sequence_count + 1; % Increment count
                 if spike_idx == 1
-                    first_spike_time = spike_times_e{i}(spike_idx); % Save first spike time
+                    first_spike_time = spike_times_e{1}(bursts_e{i}(1)); % Save first spike time
                 end
                 if neuron_idx == length(spike_times_e)
-                    last_spike_time = spike_time; % Save last spike time
+                    % last_spike_time = spike_time; % Save last spike time
+            
+                    last_spike_time = spike_times_e{size_network}(final_bursts_e{i}(end));
                 end
             end
         end
@@ -458,18 +474,19 @@ for i = 1:length(bursts_e)
 
 end
 
+figure()
 
-
-% Assuming 'results' is already defined
 plot(results_sequences_e(:,1), results_sequences_e(:,end), 'k', 'LineWidth', 3); % Plot in black with line width of 3
-xlabel('Sequence Index'); % Label for x-axis
+xlabel('Sequence#'); % Label for x-axis
 ylabel('Sequence Length [ms]'); % Label for y-axis
 title('Sequence Durations as Function of Sequence Index'); % Title of the plot
 ylim([0, results_sequences_e(end, end) * 1.25]); 
 
 
 % Set x-axis ticks to whole number values from results(:,1)
-xticks(unique(round(results(:,1)))); % Use unique whole number values
+xticks(unique(round(results_sequences_e(:,1)))); % Use unique whole number values
 
 % Adjust x-axis limits to add space
-xlim([min(results(:,1)) - 1, max(results(:,1)) + 1]); % Add space to the left and right
+xlim([min(results_sequences_e(:,1)) - 1, max(results_sequences_e(:,1)) + 1]); % Add space to the left and right
+
+toc
