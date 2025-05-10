@@ -70,37 +70,48 @@ pre_array = zeros(1,length(spiketrains_e_all(1)));
 end
 
 
+
+yticks([0.4, 5.4]); % Remove y-axis ticks
+yticklabels({'1', '6'})
+ax = gca; % Get current axes
+ax.TickLength = [0 0]; % Set tick length to zero
+xlabel('Time (ms)');
+ylabel('Neuron#');
+title('Raster plot, excitatory');
+axis([0 800 0 6])
+
+
 % plots the raster for inhibitory neurons
 
-% figure(2)
-% 
-% for cellIndex = 1:length(spike_times_i)
-%     % for excitatory raster plot
-% pre_array = zeros(1,length(spiketrains_i_all(1)));
-% 
-%     spikes = spike_times_i{cellIndex}; % Get the spike train matrix from the current cell
-%     trains = size(spikes, 1); 
-% 
-%     % Convert spike times to indices for pre_array
-%     for i = 1:length(spikes)
-%         index = round(spikes(i) * 0.01); % Convert ms to index (assuming 1 ms corresponds to index 100)
-%         pre_array(index) = 1; % Set the corresponding index in pre_array to 1
-%     end
-% 
-%     spikes = pre_array; % pre-assigning empty array
-%     ticMargin = 0.01;                                      % gap between spike trains (full scale is 1)
-%     ticHeight = (0.7 - (trains + 1) * ticMargin) / trains;
-% 
-%     for train = 1:trains
-% 
-%         spikeTimes = find(spikes(train, :) == 1);
-%         yOffset = ticMargin + (train - 1) * (ticMargin + ticHeight) + (cellIndex - 1) * (1 + ticMargin);
-%         for i = 1:length(spikeTimes)
-%             line([spikeTimes(i) * timeStepS, spikeTimes(i) * timeStepS], ...
-%                  [yOffset, yOffset + ticHeight], 'Color', color, 'linewidth', 2); % remove '(cellIndex, :)' for single color
-%         end                                                       % add '(cellIndex, :)' for varying colors    
-%     end
-% end
+figure(2)
+
+for cellIndex = 1:length(spike_times_i)
+    % for excitatory raster plot
+pre_array = zeros(1,length(spiketrains_i_all(1)));
+
+    spikes = spike_times_i{cellIndex}; % Get the spike train matrix from the current cell
+    trains = size(spikes, 1); 
+
+    % Convert spike times to indices for pre_array
+    for i = 1:length(spikes)
+        index = round(spikes(i) * 0.01); % Convert ms to index (assuming 1 ms corresponds to index 100)
+        pre_array(index) = 1; % Set the corresponding index in pre_array to 1
+    end
+
+    spikes = pre_array; % pre-assigning empty array
+    ticMargin = 0.01;                                      % gap between spike trains (full scale is 1)
+    ticHeight = (0.7 - (trains + 1) * ticMargin) / trains;
+
+    for train = 1:trains
+
+        spikeTimes = find(spikes(train, :) == 1);
+        yOffset = ticMargin + (train - 1) * (ticMargin + ticHeight) + (cellIndex - 1) * (1 + ticMargin);
+        for i = 1:length(spikeTimes)
+            line([spikeTimes(i) * timeStepS, spikeTimes(i) * timeStepS], ...
+                 [yOffset, yOffset + ticHeight], 'Color', color, 'linewidth', 2); % remove '(cellIndex, :)' for single color
+        end                                                       % add '(cellIndex, :)' for varying colors    
+    end
+end
 
 
 
@@ -112,12 +123,13 @@ end
 
 
 % Set axis labels and title
-
+yticks([0.4, 5.4]); % Remove y-axis ticks
+yticklabels({'1', '6'})
+ax = gca; % Get current axes
+ax.TickLength = [0 0]; % Set tick length to zero
 xlabel('Time (ms)');
-ylabel('Neuron');
-title('Raster plot');
-axis([0 1000 0 6])
-
-
+ylabel('Neuron#');
+title('Raster plot, inhibitory');
+axis([0 800 0 6])
 
 end
