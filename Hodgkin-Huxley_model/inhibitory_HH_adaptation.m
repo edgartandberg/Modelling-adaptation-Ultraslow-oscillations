@@ -1,4 +1,4 @@
-function [v_i, t_i, i_counter, spiketimes_i, w_i] = inhibitory_HH_adaptation(t_final,dt,i_ext_i)
+function [v_i, t_i, i_counter, spiketimes_i, w_i,i_ext_i_all] = inhibitory_HH_adaptation(t_final,dt,i_ext_i,t_k,b_k)
 %UNTITLED5 Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -14,11 +14,9 @@ v_na = 55; % Sodium reversal potential
 v_l = -65; % Leak reversal potential
 
 
-t_k = 40; % time constant for adaptation current, indexing over k neurons
+%t_k = 150; % time constant for adaptation current, indexing over k neurons
 a_k = 0.001; % adaptation coupling
-b_k = 0.01; % adaptation gain
-
-
+%b_k = 0.015; % adaptation gain
 
 
 m_steps=round(t_final/dt);
@@ -34,8 +32,11 @@ h(1)=0.7;
 n(1)=0.6; 
 
 i_counter=0;
-
+i_ext_i_all = zeros(1,m_steps+1);
 for k=1:m_steps
+
+    i_ext_i = 20.0; % in micro A
+    i_ext_i = i_ext_i + 1*randn;
     
     v_inc=(g_na*m(k)^3*h(k)*(v_na-v_i(k))+ ...
         g_k*n(k)^4*(v_k-v_i(k))+g_l*(v_l-v_i(k))+i_ext_i)/c;
@@ -59,9 +60,9 @@ for k=1:m_steps
     h(k+1)=h(k)+dt*h_inc;
     n(k+1)=n(k)+dt*n_inc;
 
-    if v_i(k) >= -50
+    if v_i(k) >= 0
         w(k+1)= w(k) + dt*(a_k*(v_i(k) - v_l) - w(k) + b_k*t_k)/t_k;
-        if v_i(k+1) < -50
+        if v_i(k+1) < 0
             i_counter = i_counter+1;
             spiketimes_i(i_counter) = k;
         end
@@ -69,6 +70,8 @@ for k=1:m_steps
     else
         w(k+1)= w(k) + dt*(a_k*(v_i(k) - v_l) - w(k))/t_k;
     end
+
+    i_ext_i_all(k) = i_ext_i;  
     
 end
 

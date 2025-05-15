@@ -1,4 +1,4 @@
-function [v_i, t_i, i_counter, m, h, n, spiketimes_i, i_ext_i_all, z, b] = I_Sompolinsky_adaptation(v_i, k, t_final,dt,i_ext_i, m_i, h_i, n_i, z_i, b_i)
+function [v_i, t_i, i_counter, m, h, n, spiketimes_i, i_ext_i_all, z_i] = I_Sompolinsky_adaptation(t_final,dt,i_ext_i)
 %UNTITLED4 Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -19,13 +19,9 @@ v_l = -65; % Leak reversal potential
 tau_z = 60; % slow potassium current time constant
 tau_b = 10; % A-current time constant
 
-m=m_i;
-h=h_i;
-n=n_i;
-z=z_i;
-b=b_i;
 
-spiketimes_i = [];
+
+
 m_steps=round(t_final/dt);
 
 
@@ -47,12 +43,13 @@ i_ext_i_all = zeros(1,m_steps+1);
 
 
 
+for k=1:m_steps
 
     %i_ext_i = 1.5; % in micro A
 
     v_inc=(g_na*m(k)^3*h(k)*(v_na-v_i(k))+ g_k*n(k)^4*(v_k-v_i(k))+g_l*(v_l-v_i(k)) ...
         + g_z*z(k)*(v_k-v_i(k)) + g_a*a_infty(v_i(k))*b(k)*(v_a-v_i(k)) ...
-        + g_nap*s_infty(v_i(k))*(v_na-v_i(k)) + i_ext_i)/c;
+        + g_nap*s_infty(v_i(k))*(v_na-v_i(k)) + i_ext_i(k))/c;
 
     m_inc=alpha_m(v_i(k))*(1-m(k))-beta_m(v_i(k))*m(k);
     h_inc=alpha_h(v_i(k))*(1-h(k))-beta_h(v_i(k))*h(k);
@@ -71,7 +68,7 @@ i_ext_i_all = zeros(1,m_steps+1);
 
     v_inc=(g_na*m_tmp^3*h_tmp*(v_na-v_tmp)+ ...
         g_k*n_tmp^4*(v_k-v_tmp)+g_l*(v_l-v_tmp) + g_z*z(k)*(v_k-v_tmp) + g_a*a_infty(v_tmp)*b(k)*(v_a-v_tmp) ...
-        + g_nap*s_infty(v_tmp)*(v_na-v_tmp) + i_ext_i)/c;
+        + g_nap*s_infty(v_tmp)*(v_na-v_tmp) + i_ext_i(k))/c;
 
 
     m_inc=alpha_m(v_tmp)*(1-m_tmp)-beta_m(v_tmp)*m_tmp;
@@ -98,6 +95,9 @@ i_ext_i_all = zeros(1,m_steps+1);
     end
 
     %i_ext_i_all(k) = i_ext_i;    
+end
+
+z_i = z;
 
 t_i=(0:m_steps)*dt;
 

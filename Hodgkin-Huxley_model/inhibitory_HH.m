@@ -1,4 +1,4 @@
-function [v_i, t_i, i_counter, spiketimes_i] = inhibitory_HH(t_final,dt,i_ext_i)
+function [v_i, t_i, i_counter, m_i, h_i, n_i, i_ext_i_all] = inhibitory_HH(t_final,dt,ii, Amps)
 %UNTITLED5 Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -10,7 +10,6 @@ g_l = 0.1; % Leak conductance
 v_k = -70; % Potassium reversal potential
 v_na = 55; % Sodium reversal potential
 v_l = -65; % Leak reversal potential
-
 
 
 dt05=dt/2;
@@ -27,6 +26,8 @@ n(1)=0.6;
 i_counter=0;
 
 for k=1:m_steps
+    i_ext_i = Amps(ii); % injected current to inhibitory neurons
+    %i_ext_i = 1*randn + i_ext_i;
     
     v_inc=(g_na*m(k)^3*h(k)*(v_na-v_i(k))+ ...
         g_k*n(k)^4*(v_k-v_i(k))+g_l*(v_l-v_i(k))+i_ext_i)/c;
@@ -56,9 +57,16 @@ for k=1:m_steps
             spiketimes_i(i_counter) = k;
         end
     end
-    
+
+    i_ext_i_all(ii,k) = i_ext_i;
 end
 
 t_i=(0:m_steps)*dt;
+
+
+m_i = m;
+h_i = h;
+n_i = n;
+
 
 end
