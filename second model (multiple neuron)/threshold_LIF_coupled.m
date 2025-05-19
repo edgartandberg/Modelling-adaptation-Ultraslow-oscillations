@@ -43,20 +43,28 @@ end
 figure();
 subplot(3,1,1)
 hold on;
-plot(u, 'b-', 'DisplayName', 'u(t)');
-plot(u_th, 'r-', 'DisplayName', 'threshold');
-xlabel('Time (s)');
-ylabel('');
+plot(u, 'k-', 'DisplayName', 'Membrane potential');
+plot(u_th, 'Color', '#D95319', 'DisplayName', 'Adaptation threshold'); % Set color using hex code
+xlabel('Time (ms)');
+ylabel('Voltage [mV]');
 title('Membrane potential + threshold')
+
+
 legend;
 grid on;
 subplot(3,1,2)
 plot(I, 'k-')
 title('Input current');
+ylabel('Input current [pA]');
+xlabel('Time (ms)');
 ylim([-50 250])
+
+
 subplot(3,1,3)
 plot(diff(spk_times), 'b-*')
 title('interspike interval')
+xlabel('Spike no');
+ylabel('Spike distance [ms]');
 hold off
 
 

@@ -9,13 +9,14 @@ t_m = 5; % time constant in ms
 t_ref = 50; % refractory period in ms, change for adjusting spike frequency
 N = 800; % number of measurements
 Iext = zeros(1,N); % initialize membrane current
-I_0 = 1.5e-6; % input current
+I_0 = 2.0e-6; % input current
 R = 10^7; % resistance in ohms
+%R = 1.0;
 a_gain = 0*t_ref*5; % set to *0 for no adaptation and *1 for adaptation
 
 
 u_rest = -70 ;% resting membrane potential in mV
-u_th = -55 ;% spiking threshold
+u_th = -50 ;% spiking threshold
 u_hp = -90 ;% hyperpolarization
 u_spike = 20 ;% membrane potential at spike peak
 
@@ -24,8 +25,8 @@ u_spike = 20 ;% membrane potential at spike peak
 t = linspace(-0.2*N, 0.8*N, N); % time series
 
 spiketrains = 1; % number of spiketrains we want to simulate. Change to 1 for single neuron
-num_start = 0.2 * (N); % start of input current
-num_end   = 0.8 * (N);  % end of input current
+num_start = 200; % start of input current
+num_end   = 700;  % end of input current
 num_pulses = 2; % number of pulses
 
 %% Building connectivity matrix
@@ -100,19 +101,19 @@ end
 
 figure(2) 
 subplot(2,1,1);
-plot(t,Iext_all{1,1},'r','LineWidth',3)
-title('Input current')
-xlabel('time')
-ylabel('I_ext')
+plot(t,Iext_all{1,1},'k','LineWidth',3)
+%title('Input current')
+xlabel('Time [ms]')
+ylabel('Input current [A]')
 xlim([-0.1*N num_end*1.05])
-ylim([0 I_0*1.25])
+ylim([0 2.5e-6])
 yline(0)
 
 subplot(2,1,2);
-plot(t,u_all{1,1}, 'b', 'LineWidth',2)
-title('Voltage')
-xlabel('time')
-ylabel('u(t)')
+plot(t,u_all{1,1}, 'k', 'LineWidth',2)
+%title('Voltage')
+xlabel('Time [ms]')
+ylabel('V [mV]')
 xlim([-0.1*N num_end*1.05])
 ylim([u_hp-10 u_spike+5])
 yline(u_th,'--k','Threshold')
