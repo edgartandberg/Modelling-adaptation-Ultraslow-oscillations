@@ -8,7 +8,7 @@ clearvars
 % Parameters
 t_m = 5;        % Time constant for membrane potential
 t_k = 100; % time constant for adaptation current, indexing over k neurons
-a_k = -1.0e-9; % adaptation coupling
+a_k = 0.0; % adaptation coupling
 b_k = 1e-5; % adaptation gain
 u_r = -55; % voltage reset
 u_rest = -70; % resting potential
@@ -173,10 +173,10 @@ end
 heatmatrix = reshape(r_array, [],length(a_k_values));
 
 Xlabels = a_k_values;
-Xlabels(mod(Xlabels,5e-9) ~= 0) = " ";
+Xlabels(mod(Xlabels,2e-9) ~= 0) = " ";
 
 Ylabels = b_k_values;
-Ylabels(mod(Ylabels,5e-6) ~= 0) = " ";
+Ylabels(mod(Ylabels,2e-6) ~= 0) = " ";
 
 figure()
 h = heatmap(heatmatrix,'CellLabelColor','none');
@@ -209,11 +209,11 @@ t_m = 5;        % Time constant for membrane potential
 u_r = -55; % voltage reset
 u_rest = -70; % resting potential
 a_k = 0.0; 
-t_k_values = 120:-10:10; 
-b_k_values = 1e-5:-1e-6:0; % b_k from 0 to 100
+t_k_values = 100:-10:10; 
+b_k_values = 1e-5:-1e-6:1.0e-06; % b_k from 0 to 100
 u_th= -50; % spike threshold
-R = 1; % Resistance, in megaohms
-
+R = 10^7; %Resistance
+A = 1; % toggle for adaptation, 1 for on 0 for off
 
 
 r_array = zeros(1,0);
@@ -223,13 +223,13 @@ for i = 1:length(t_k_values)
     for j = 1:length(b_k_values)
         j = b_k_values(j);
         % Initialize variables
-        u(1) = 40; 
+        u(1) = 0; 
         w(1) = 0;  
         I = zeros(1, 100000); % Input current initialization
         inputType = 'S'; % 'O' for oscillatory input, 'S' for step input
-        Amplitude = 200; % amplitude of signal
-        r_start = 25000; % start of signal
-        r_end = 75000; % end of signal
+        Amplitude = 2.5e-6; % amplitude of signal
+        r_start = 20000; % start of signal
+        r_end = 70000; % end of signal
         r_width = r_end - r_start;
 
     %input type
@@ -246,15 +246,15 @@ for i = 1:length(t_k_values)
 
         % Define and solve the differential equations:
         for t = 2:100000
-            u(t) = u(t-1) + dt*(-(u(t-1) - u_rest) - w(t-1) + R.*I(t-1))/t_m;
+            u(t) = u(t-1) + dt*(-(u(t-1) - u_rest) - A.*w(t-1) + R.*I(t-1))/t_m;
             if (u(t) >= u_th)
                 u(t) = u_r;
                 heat_counter=heat_counter+1;
                 heat_spk_times(heat_counter)=t;
                 
-                w(t) = w(t-1) + dt*(a_k*(u(t-1) - u_rest) - w(t-1) + j*i)/i;
+                w(t) = A.*w(t-1) + dt*(a_k*(u(t-1) - u_rest) - w(t-1) + j*i)/i;
             else
-                w(t) = w(t-1) + dt*(a_k*(u(t-1) - u_rest) - w(t-1))/i;
+                w(t) = A.*w(t-1) + dt*(a_k*(u(t-1) - u_rest) - w(t-1))/i;
             end
             
         end
@@ -266,7 +266,7 @@ for i = 1:length(t_k_values)
         % bins = r_width / bin_size;
         % bin_edges = r_start:bin_size:r_end;
         % heat_spike_counts = histcounts(heat_spk_times, bin_edges);
-        heat_firing_rates = spikes / r_width; 
+        heat_firing_rates = spikes / (r_width*dt*0.01); 
         
         % Append the current heat_firing_rates to the matrix
         r_array = [r_array heat_firing_rates];
@@ -277,22 +277,22 @@ end
 heatmatrix = reshape(r_array, [],length(b_k_values));
 
 Xlabels = t_k_values;
-Xlabels(mod(Xlabels,50) ~= 0) = " ";
+Xlabels(mod(Xlabels,20) ~= 0) = " ";
 
 Ylabels = b_k_values;
-Ylabels(mod(Ylabels,15) ~= 0) = " ";
+Ylabels(mod(Ylabels,2e-6) ~= 0) = " ";
 
 figure()
-h = heatmap(t_k_values,b_k_values,heatmatrix,'CellLabelColor','none');
-caxis([-0.0 2.8]);
+h = heatmap(heatmatrix,'CellLabelColor','none');
+%caxis([-0.0 2.8]);
 h.XDisplayLabels = Xlabels;
 h.YDisplayLabels = Ylabels;
 
 h.Title = 'Firing rate for varying time constant and gain';
-h.XLabel = 'time constant';
-h.YLabel = 'adaptation gain';
+h.XLabel = 'Adaptation time constant [ms]';
+h.YLabel = 'Adaptation gain [A]';
 h.Colormap = autumn;
-caxis([0 2.5])
+%caxis([0 2.5])
 
 
 

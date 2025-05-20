@@ -2,7 +2,7 @@
 
 clc
 clear
-tic
+%tic
 
 % Parameters
 t_m = 5;        % Time constant for membrane potential
@@ -27,11 +27,11 @@ r_width = r_end - r_start;
 bin_size = 1000; % bin size in ms
 max_amp = 2.1e-6; % in mA, microamperes
 %Amp_array = 0.1e-6:0.1e-6:max_amp;
-gain_values=(0:1e-6:5e-6);
+gain_values=(0:0.1e-6:5e-6);
 tau_values = (5:5:10);
 %R = 1.00; % Resistance, in megaohms
 R = 10^7; %Resistance
-noise_gain_values=(0:0.01e-6:5e-6);
+noise_gain_values=(0:0.1e-6:5e-6);
 rt_all = cell(1,length(noise_gain_values));
 rt_noise = zeros(1,length(noise_gain_values)); % array of firing rates for plotting against noise
 noise_all = cell(1,length(noise_gain_values));
@@ -92,28 +92,26 @@ for b_k = gain_values
     rt_all(1,count) = {rt_noise};
 end
 
-toc
-%%
 
 figure(1)
 plot(noise_gain_values,rt_all{1,1})
 hold on
-% plot(noise_gain_values,rt_all{1,2})
-% plot(noise_gain_values,rt_all{1,4})
-% plot(noise_gain_values,rt_all{1,6})
-% xlabel('Noise amplitude [A]');
+plot(noise_gain_values,rt_all{1,2})
+plot(noise_gain_values,rt_all{1,10})
+plot(noise_gain_values,rt_all{1,40})
+xlabel('Noise amplitude [A]');
 ylabel('Firing rate [Hz]');
-title('Firing rate as a function of noise');
-xlim([0 5e-6])
+title('r(t) as a function of noise');
+% xlim([0 length(noise_gain_values)])
 % ylim([0 120])
 
 
-legend(sprintf('b_k = %g', gain_values(1)),'Location','best'); 
+%legend(sprintf('b_k = %g', gain_values(1)),'Location','best'); 
 
-% legend(sprintf('b_k = %g', gain_values(1)), ...
-%        sprintf('b_k = %g', gain_values(2)), ...
-%        sprintf('b_k = %g', gain_values(4)), ...
-%        sprintf('b_k = %g', gain_values(6)), 'Location','best'); 
+legend(sprintf('b_k = %g', gain_values(1)), ...
+       sprintf('b_k = %g', gain_values(2)), ...
+       sprintf('b_k = %g', gain_values(10)), ...
+       sprintf('b_k = %g', gain_values(40)), 'Location','best'); 
 
 
 
@@ -126,7 +124,7 @@ legend(sprintf('b_k = %g', gain_values(1)),'Location','best');
 % ylim([-10 max_amp*1.2]);
 
 
-
+%toc
 
 %% Tiled layout
 % 
