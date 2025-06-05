@@ -24,6 +24,9 @@ go to folder named HH_network,
 
 use Sompolinsky_Network.m
 
-this will need to call most of the functions in the folder
+this will need to call most of the functions in the folder.
+
+Simulating sequences over 550 ms takes approx. 15-20 minutes with a network of 6 of each neurons. 
+This can be adjusted by changing the step size dt.
 
 
