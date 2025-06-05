@@ -6,14 +6,14 @@ Masters thesis for NTNU
 
 go to folder named second model (multiple neuron)
 
-use ***network_model.m***, that calls the functions LIF.m and Gen_Current.m
+use ***network_model.m***, that calls the functions LIF.m and Gen_Current.m among others.
 
 
 ## **2. Simulate single neuron HH model:**
 
 go to folder named Hodgkin-Huxley_model
 
-use ***singleHH.m***, that calls the function  excitatory_HH.m
+use ***singleHH.m***, that calls the function excitatory_HH.m
 
 Swap with inhibitory_HH.m to simulate an inhibitory neuron. 
 
