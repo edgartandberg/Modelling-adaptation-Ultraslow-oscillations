@@ -18,8 +18,12 @@ use singleHH.m, that calls the function  excitatory_HH.m
 Swap with inhibitory_HH.m to simulate an inhibitory neuron. 
 
 
-*3. Simulate network w. sequences:**
+**3. Simulate network w. sequences:**
 
-go to folder named HH_network
+go to folder named HH_network,
+
+use Sompolinsky_Network.m
+
+this will need to call most of the functions in the folder
 
 
